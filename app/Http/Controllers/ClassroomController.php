@@ -27,6 +27,11 @@ final class ClassroomController extends Controller
             'institution' => $institution,
             'sections' => $classrooms->visible($request->user(), $institution),
             'canManage' => $canManage,
+            'teacherNeedsMfa' => ! $request->user()->mfa_enabled_at
+                && $request->user()->roleAssignments()
+                    ->where('institution_id', $institution->id)
+                    ->whereHas('role', fn ($q) => $q->whereIn('code', ['teacher', 'professor']))
+                    ->exists(),
             'campuses' => $canManage ? $institution->campuses()
                 ->where('status', 'active')->orderBy('name')->get() : collect(),
             'years' => $canManage ? AcademicYear::query()

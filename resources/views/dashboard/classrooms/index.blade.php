@@ -7,6 +7,13 @@
     <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">View your assigned classrooms. Student and guardian accounts cannot access another class or its roster.</p>
     <a href="{{ route('dashboard.institution', $institution) }}" class="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline">Return to dashboard</a>
 </header>
+@if($teacherNeedsMfa)
+<section class="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950">
+    <h2 class="text-sm font-bold text-blue-800 dark:text-blue-200">Teacher account verification required</h2>
+    <p class="mt-2 text-sm leading-6 text-blue-700 dark:text-blue-300">Enable authenticator-based two-factor authentication to access your assigned teaching rosters. Unverified teacher accounts cannot read student names.</p>
+    <a href="{{ route('mfa.setup') }}" class="mt-3 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Set up account security</a>
+</section>
+@endif
 <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
         <h2 class="text-lg font-bold">Accessible classes</h2>

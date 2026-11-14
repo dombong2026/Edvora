@@ -278,4 +278,24 @@ final class ClassroomAccessTest extends TestCase
             'enrolled_at' => now(),
         ]);
     }
+    public function test_teacher_without_mfa_cannot_view_class_roster_until_enrollment(): void
+    {
+        $school = $this->institution('school');
+        $campus = $this->campus($school, 'north');
+        $officer = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        [$year, $subject] = $this->academic($school, $officer);
+        $year->forceFill(['status' => 'active'])->save();
+        $section = $this->section($campus, $year, $subject, $officer, 'MFA');
+        app(\App\Services\ClassroomService::class)->assignTeacher($officer, $section, $teacher);
+
+        $teacher->forceFill(['mfa_enabled_at' => null, 'mfa_secret' => null])->save();
+
+        $this->actingAs($teacher)->get(route('classrooms.index', $school))
+            ->assertOk()
+            ->assertSee('Teacher account verification required')
+            ->assertDontSee('Section MFA');
+
+        $this->get(route('classrooms.show', [$school, $section]))->assertForbidden();
+    }
 }
