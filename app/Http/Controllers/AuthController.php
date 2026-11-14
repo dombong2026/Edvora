@@ -35,6 +35,7 @@ class AuthController extends Controller
         if ($user->mfa_enabled_at) {
             $request->session()->regenerate();
             $request->session()->put('pending_mfa_user_id', $user->id);
+            $request->session()->put('pending_mfa_issued_at', now()->timestamp);
             $request->session()->put('pending_mfa_remember', $request->boolean('remember'));
 
             return redirect()->route('mfa.challenge');

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->unique(['institution_id', 'user_id']);
             $table->unique(['id', 'institution_id']);
             $table->unique(['id', 'institution_id', 'campus_id'], 'student_tenant_campus_identity');
+            $table->foreign(['user_id', 'institution_id'])
+                ->references(['user_id', 'institution_id'])->on('institution_memberships')->restrictOnDelete();
             $table->foreign(['campus_id', 'institution_id'])
                 ->references(['id', 'institution_id'])->on('campuses')->restrictOnDelete();
             $table->index(['institution_id', 'campus_id', 'status']);
@@ -39,6 +41,8 @@ return new class extends Migration
             $table->foreignId('revoked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->unique(['student_profile_id', 'guardian_user_id'], 'unique_student_guardian');
+            $table->foreign(['guardian_user_id', 'institution_id'])
+                ->references(['user_id', 'institution_id'])->on('institution_memberships')->restrictOnDelete();
             $table->foreign(['student_profile_id', 'institution_id'])
                 ->references(['id', 'institution_id'])->on('student_profiles')->restrictOnDelete();
             $table->index(['institution_id', 'guardian_user_id']);

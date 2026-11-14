@@ -15,7 +15,7 @@ class MfaController extends Controller
 {
     public function challenge(Request $request): View|RedirectResponse
     {
-        if (! $request->session()->has('pending_mfa_user_id')) {
+        if (! $this->hasValidChallenge($request)) {
             return redirect()->route('login');
         }
 
@@ -28,10 +28,14 @@ class MfaController extends Controller
             'code' => ['required', 'string', 'max:40'],
         ]);
 
+        if (! $this->hasValidChallenge($request)) {
+            return redirect()->route('login')->withErrors(['code' => 'Your verification period expired. Sign in again.']);
+        }
+
         $id = $request->session()->get('pending_mfa_user_id');
         $user = $id ? User::query()->find($id) : null;
         if (! $user || ! $user->mfa_enabled_at) {
-            $request->session()->forget(['pending_mfa_user_id', 'pending_mfa_remember']);
+            $request->session()->forget(['pending_mfa_user_id', 'pending_mfa_remember', 'pending_mfa_issued_at']);
 
             return redirect()->route('login')->withErrors(['email' => 'Sign in again.']);
         }
@@ -41,12 +45,26 @@ class MfaController extends Controller
         }
 
         $remember = (bool) $request->session()->pull('pending_mfa_remember', false);
-        $request->session()->forget('pending_mfa_user_id');
+        $request->session()->forget(['pending_mfa_user_id', 'pending_mfa_issued_at']);
 
         Auth::login($user, $remember);
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));
+    }
+
+    private function hasValidChallenge(Request $request): bool
+    {
+        $id = $request->session()->get('pending_mfa_user_id');
+        $issued = $request->session()->get('pending_mfa_issued_at');
+        if (! is_numeric($id) || ! is_numeric($issued)
+            || (int) $issued > now()->timestamp
+            || now()->timestamp - (int) $issued > 300) {
+            $request->session()->forget(['pending_mfa_user_id', 'pending_mfa_remember', 'pending_mfa_issued_at']);
+            return false;
+        }
+
+        return true;
     }
 
     public function cancelChallenge(Request $request): RedirectResponse

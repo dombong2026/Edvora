@@ -144,4 +144,26 @@ class MfaAuthenticationTest extends TestCase
         $this->assertDatabaseMissing('security_events', ['metadata' => $plain]);
     }
 
+    public function test_mfa_login_challenge_expires_after_five_minutes(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'CorrectPassword123!',
+        ]);
+        $user->forceFill([
+            'mfa_secret' => app(Totp::class)->newSecret(),
+            'mfa_enabled_at' => now(),
+        ])->save();
+
+        $this->post(route('login.store'), [
+            'email' => $user->email, 'password' => 'CorrectPassword123!',
+        ])->assertRedirect(route('mfa.challenge'));
+        $this->assertGuest();
+
+        $this->travel(6)->minutes();
+        $this->get(route('mfa.challenge'))->assertRedirect(route('login'));
+        $this->post(route('mfa.challenge.complete'), [
+            'code' => app(Totp::class)->codeAt($user->mfa_secret, intdiv(time(), 30)),
+        ])->assertRedirect(route('login'));
+        $this->assertGuest();
+    }
 }
