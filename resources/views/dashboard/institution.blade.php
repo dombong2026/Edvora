@@ -60,3 +60,45 @@
     </section>
 </div>
 @endsection
+
+@if($canInvite)
+<section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold">Invite an institution member</h2>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Send a private, 48-hour, one-use invitation. Only assigned roles and authorized campuses can be accessed.</p>
+        </div>
+        <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">Administrator access</span>
+    </div>
+    <form method="POST" action="{{ route('invitations.store', $institution) }}" class="mt-6 grid gap-4 md:grid-cols-3">
+        @csrf
+        <div>
+            <label class="mb-2 block text-sm font-semibold" for="invite-email">Email address</label>
+            <input id="invite-email" name="email" type="email" autocomplete="off" required maxlength="255" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950" value="{{ old('email') }}">
+            @error('email') <p role="alert" class="mt-2 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+        <div>
+            <label class="mb-2 block text-sm font-semibold" for="invite-role">Role</label>
+            <select id="invite-role" name="role" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950">
+                <option value="">Select role</option>
+                @foreach($inviteRoles as $role)
+                    <option value="{{ $role->value }}" @selected(old('role') === $role->value)>{{ $role->label() }}</option>
+                @endforeach
+            </select>
+            @error('role') <p role="alert" class="mt-2 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+        <div>
+            <label class="mb-2 block text-sm font-semibold" for="invite-campus">Campus</label>
+            <select id="invite-campus" name="campus_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950">
+                <option value="">Institution-wide leadership only</option>
+                @foreach($campuses as $campus)
+                    <option value="{{ $campus->id }}" @selected((string) old('campus_id') === (string) $campus->id)>{{ $campus->name }}</option>
+                @endforeach
+            </select>
+            @error('campus_id') <p role="alert" class="mt-2 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+        <p class="md:col-span-2 text-xs leading-6 text-slate-500 dark:text-slate-400">Teachers, students, parents and other non-leadership roles require a campus. Invitations are sent through the configured mail provider.</p>
+        <button type="submit" class="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Send invitation</button>
+    </form>
+</section>
+@endif

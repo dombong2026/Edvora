@@ -3,9 +3,12 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MfaController;
+use App\Http\Controllers\InstitutionInvitationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
+Route::get('/invites/{token}', [InstitutionInvitationController::class, 'show'])->middleware('throttle:30,1')->name('invitations.show');
+Route::post('/invites/{token}/accept', [InstitutionInvitationController::class, 'accept'])->middleware('throttle:5,1')->name('invitations.accept');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/two-factor/challenge', [MfaController::class, 'challenge'])->name('mfa.challenge');
@@ -27,6 +30,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/security/mfa', [MfaController::class, 'enable'])->middleware('throttle:5,1')->name('mfa.enable');
     Route::get('/account/security/mfa/recovery', [MfaController::class, 'recoveryCodes'])->name('mfa.recovery');
     Route::middleware('privileged.mfa')->group(function (): void {
+    Route::post('/dashboard/institutions/{institution:slug}/invitations', [InstitutionInvitationController::class, 'store'])
+        ->middleware('throttle:5,1')->name('invitations.store');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])

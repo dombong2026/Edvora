@@ -74,6 +74,12 @@ class DashboardController extends Controller
             'selectedCampus' => $selectedCampus,
             'selectedRole' => $selectedRole,
             'roleCodes' => $access->roleCodes($request->user(), $institution),
+            'canInvite' => $request->user()->roleAssignments()
+                ->where('institution_id', $institution->id)
+                ->whereNull('campus_id')
+                ->whereHas('role', fn ($q) => $q->whereIn('code', ['administrator', 'director']))
+                ->exists(),
+            'inviteRoles' => array_filter(AccountRole::cases(), fn (AccountRole $role) => $role !== AccountRole::Admin),
             'memberCount' => InstitutionMembership::query()
                 ->where('institution_id', $institution->id)
                 ->where('status', 'active')
