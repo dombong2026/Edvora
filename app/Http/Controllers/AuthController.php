@@ -25,11 +25,22 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::validate($credentials)) {
             return back()->withErrors(['email' => __('These credentials do not match our records.')])
                 ->onlyInput('email');
         }
 
+        $user = User::query()->where('email', $credentials['email'])->firstOrFail();
+
+        if ($user->mfa_enabled_at) {
+            $request->session()->regenerate();
+            $request->session()->put('pending_mfa_user_id', $user->id);
+            $request->session()->put('pending_mfa_remember', $request->boolean('remember'));
+
+            return redirect()->route('mfa.challenge');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));

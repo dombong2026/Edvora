@@ -17,7 +17,15 @@ class User extends Authenticatable
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed'];
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'mfa_secret' => 'encrypted',
+            'mfa_pending_secret' => 'encrypted',
+            'mfa_pending_expires_at' => 'datetime',
+            'mfa_enabled_at' => 'datetime',
+            'mfa_last_counter' => 'integer',
+        ];
     }
 
     public function memberships(): HasMany
@@ -33,6 +41,11 @@ class User extends Authenticatable
     public function platformAdministrator(): HasOne
     {
         return $this->hasOne(PlatformAdministrator::class);
+    }
+
+    public function recoveryCodes(): HasMany
+    {
+        return $this->hasMany(MfaRecoveryCode::class);
     }
 
     public function isPlatformAdmin(): bool
