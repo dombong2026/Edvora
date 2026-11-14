@@ -169,8 +169,9 @@ final class TimetableAttendanceTest extends TestCase
         $campus = $this->campus($school);
         $officer = $this->account($school, 'director');
         $teacher = $this->account($school, 'teacher', $campus);
+        $anotherTeacher = $this->account($school, 'teacher', $campus);
         $first = $this->class($campus, $officer, $teacher, 'A');
-        $second = $this->class($campus, $officer, $teacher, 'B');
+        $second = $this->class($campus, $officer, $anotherTeacher, 'B');
 
         $service = app(ClassTimetableService::class);
         $service->create($officer, $first, [
@@ -311,4 +312,26 @@ final class TimetableAttendanceTest extends TestCase
             'recorded_by' => $teacher->id,
         ]);
     }
+
+    public function test_teacher_cannot_be_double_booked_across_two_rooms(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $officer = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $first = $this->class($campus, $officer, $teacher, 'A');
+        $second = $this->class($campus, $officer, $teacher, 'B');
+
+        $service = app(ClassTimetableService::class);
+        $service->create($officer, $first, [
+            'weekday' => 3, 'starts_at' => '09:00', 'ends_at' => '10:00', 'room_name' => 'Room 1',
+        ]);
+
+        $this->actingAs($officer)->post(route('timetable.store', [$school, $second]), [
+            'weekday' => 3, 'starts_at' => '09:30', 'ends_at' => '10:30', 'room_name' => 'Room 2',
+        ])->assertSessionHasErrors('starts_at');
+
+        $this->assertDatabaseCount('class_timetable_slots', 1);
+    }
+
 }

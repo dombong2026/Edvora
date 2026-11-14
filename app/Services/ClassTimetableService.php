@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Campus;
+use App\Models\Institution;
 use App\Models\ClassSection;
 use App\Models\ClassTimetableSlot;
 use App\Models\User;
@@ -34,8 +34,8 @@ final class ClassTimetableService
         }
 
         return DB::transaction(function () use ($actor, $section, $data): ClassTimetableSlot {
-            // Serializes all scheduling updates for the campus to avoid concurrent room collisions.
-            Campus::query()->whereKey($section->campus_id)->lockForUpdate()->firstOrFail();
+            // Institution-level row lock serializes room and assigned-teacher scheduling across campuses.
+            Institution::query()->whereKey($section->institution_id)->lockForUpdate()->firstOrFail();
 
             $overlap = fn ($query) => $query
                 ->where('weekday', $data['weekday'])
@@ -46,6 +46,17 @@ final class ClassTimetableService
                 ->where('class_section_id', $section->id))->exists();
             if ($sameSection) {
                 throw ValidationException::withMessages(['starts_at' => 'Class already has an overlapping timetable slot.']);
+            }
+
+            if ($section->teacher_user_id !== null) {
+                $teacherConflict = $overlap(ClassTimetableSlot::query()
+                    ->join('class_sections', 'class_sections.id', '=', 'class_timetable_slots.class_section_id')
+                    ->where('class_sections.institution_id', $section->institution_id)
+                    ->where('class_sections.teacher_user_id', $section->teacher_user_id))
+                    ->exists();
+                if ($teacherConflict) {
+                    throw ValidationException::withMessages(['starts_at' => 'The assigned teacher already has a class during that period.']);
+                }
             }
 
             $room = trim($data['room_name'] ?? '');

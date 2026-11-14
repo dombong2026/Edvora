@@ -48,7 +48,7 @@ final class ClassAttendanceService
         if (! preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date)
             || $date < $year->starts_on->toDateString()
             || $date > $year->ends_on->toDateString()
-            || $date > now()->toDateString()) {
+            || $date > now($section->institution->timezone ?? config('app.timezone'))->toDateString()) {
             throw ValidationException::withMessages(['session_date' => 'Attendance date must be within the academic year and cannot be in the future.']);
         }
 

@@ -11,12 +11,12 @@
 @if($canTake)
 <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
     <h2 class="text-lg font-bold">Open a teaching register</h2>
-    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">A class may have one register per date. The register is a draft until submitted and approved.</p>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">A class may have one register per date ({{ $institution->timezone }}). The register is a draft until submitted and approved.</p>
     <form method="POST" action="{{ route('attendance.store', [$institution, $section]) }}" class="mt-5 flex flex-wrap items-end gap-3">
         @csrf
         <div>
             <label for="session-date" class="mb-2 block text-sm font-semibold">Class date</label>
-            <input id="session-date" name="session_date" type="date" value="{{ old('session_date', today()->toDateString()) }}" max="{{ today()->toDateString() }}" required class="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950">
+            <input id="session-date" name="session_date" type="date" value="{{ old('session_date', today($institution->timezone)->toDateString()) }}" max="{{ today($institution->timezone)->toDateString() }}" required class="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950">
             @error('session_date') <p role="alert" class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
         <button class="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700" type="submit">Open attendance</button>
