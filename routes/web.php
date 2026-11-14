@@ -10,6 +10,7 @@ use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ClassAttendanceController;
 use App\Http\Controllers\ClassTimetableController;
 use App\Http\Controllers\ClassAssessmentController;
+use App\Http\Controllers\AcademicCorrectionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -98,6 +99,10 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:15,1')->name('assessments.submit');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/publish', [ClassAssessmentController::class, 'publish'])
         ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:10,1')->name('assessments.publish');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/corrections', [AcademicCorrectionController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:25,1')->name('corrections.store');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/corrections/{correction}/review', [AcademicCorrectionController::class, 'review'])
+        ->whereNumber('section')->whereNumber('correction')->middleware('throttle:15,1')->name('corrections.review');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])

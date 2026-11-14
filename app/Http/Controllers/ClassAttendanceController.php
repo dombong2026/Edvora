@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicRecordCorrection;
 use App\Models\ClassAttendanceSession;
 use App\Models\ClassEnrollment;
 use App\Models\ClassSection;
@@ -110,6 +111,14 @@ final class ClassAttendanceController extends Controller
             'existingMarks' => $marks->keyBy('class_enrollment_id'),
             'canTake' => $canTake,
             'canApprove' => $canApprove,
+            'pendingCorrections' => ($canTake || $canApprove)
+                ? AcademicRecordCorrection::query()
+                    ->where('institution_id', $institution->id)
+                    ->where('class_section_id', $class->id)
+                    ->where('kind', 'attendance')->where('status', 'pending')
+                    ->with(['requester:id,name', 'attendanceMark.enrollment.student:id,student_number,display_name'])
+                    ->orderBy('id')->limit(100)->get()
+                : collect(),
             'eligibleEnrollments' => $canTake && $record->status === 'draft'
                 ? $class->enrollments()->where('status', 'active')
                     ->whereDate('enrolled_at', '<=', $record->session_date->toDateString())

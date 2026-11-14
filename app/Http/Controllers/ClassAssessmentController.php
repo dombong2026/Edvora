@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicRecordCorrection;
 use App\Models\ClassAssessment;
 use App\Models\ClassEnrollment;
 use App\Models\ClassSection;
@@ -114,6 +115,14 @@ final class ClassAssessmentController extends Controller
             'existingResults' => $results->keyBy('class_enrollment_id'),
             'canWrite' => $canWrite,
             'canReview' => $canReview,
+            'pendingCorrections' => ($canWrite || $canReview)
+                ? AcademicRecordCorrection::query()
+                    ->where('institution_id', $institution->id)
+                    ->where('class_section_id', $class->id)
+                    ->where('kind', 'assessment')->where('status', 'pending')
+                    ->with(['requester:id,name', 'assessmentResult.enrollment.student:id,student_number,display_name'])
+                    ->orderBy('id')->limit(100)->get()
+                : collect(),
             'eligibleEnrollments' => $canWrite && $item->status === 'draft'
                 ? $class->enrollments()->where('status', 'active')
                     ->whereHas('student', fn ($query) => $query->where('status', 'active'))
