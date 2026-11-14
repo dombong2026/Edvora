@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MfaController;
 use App\Http\Controllers\InstitutionInvitationController;
+use App\Http\Controllers\AcademicCatalogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -34,6 +35,12 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('throttle:5,1')->name('invitations.store');
     Route::delete('/dashboard/institutions/{institution:slug}/invitations/{invitation}', [InstitutionInvitationController::class, 'revoke'])
         ->middleware('throttle:10,1')->name('invitations.revoke');
+    Route::get('/dashboard/institutions/{institution:slug}/academic', [AcademicCatalogController::class, 'index'])
+        ->name('academic.index');
+    Route::post('/dashboard/institutions/{institution:slug}/academic/years', [AcademicCatalogController::class, 'createYear'])
+        ->middleware('throttle:20,1')->name('academic.years.store');
+    Route::post('/dashboard/institutions/{institution:slug}/academic/subjects', [AcademicCatalogController::class, 'createSubject'])
+        ->middleware('throttle:20,1')->name('academic.subjects.store');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])
