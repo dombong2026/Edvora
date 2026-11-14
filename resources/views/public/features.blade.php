@@ -17,11 +17,15 @@
     @php
         $features = [
             ['Identity and security', 'Institution invitations, scoped memberships, MFA, password management, account history and controlled roles.', 'security'],
-            ['Academic records & reports', 'Academic years, subjects, class sections, assigned teachers, attendance, reviewed assessments and leadership-only aggregate reports with CSV export.', 'academic'],
+            ['Academic records & reports', 'Academic years, class sections, attendance, independently published assessments, private student results preview and leadership aggregate CSV reports.', 'academic'],
+            ['Student lifecycle', 'Independent review of withdrawals, promotions into available classes and restricted same-institution transfers for unlinked records.', 'students'],
+            ['Exam scheduling', 'Class exam drafts, staff submission, separate leadership publication and campus room collision checks.', 'classrooms'],
             ['Library circulation', 'Campus catalog, physical copy inventory, secure member checkout and return records.', 'library'],
             ['Operational workspaces', 'Fee proposal review, campus visitor check-in, admissions enquiries and leadership task boards.', 'operations'],
+            ['Staff administration', 'Staff leave applications and independent reviews, restricted salary-planning calculations without bank disbursement.', 'leave'],
+            ['School billing register', 'Restricted invoice drafts from reviewed fee proposals, separate issue review and manual bank-statement match records.', 'billing'],
             ['Institution support', 'Private account requests, replies, searchable ticket history and closure or reopening.', 'helpdesk'],
-            ['School announcements', 'Draft school notices, independent leadership publication and campus-audience visibility.', 'announcements'],
+            ['School announcements', 'Draft notices, independent leadership publication, campus audience visibility and personal in-app read receipts.', 'announcements'],
         ];
     @endphp
     <div class="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -36,7 +40,7 @@
 </section>
 <section class="edvora-surface p-7" aria-labelledby="release-caveat">
     <h2 id="release-caveat" class="text-lg font-bold">Development and release status</h2>
-    <p class="mt-3 max-w-4xl text-sm leading-7 text-slate-600 dark:text-slate-300">These features exist in Edvora's reviewed development branch. Installation on real school infrastructure, physical-device acceptance, privacy-policy approval, independent encrypted-backup restore and security sign-off are not yet complete. Live payment collection, external school notifications and student transfers remain disabled.</p>
+    <p class="mt-3 max-w-4xl text-sm leading-7 text-slate-600 dark:text-slate-300">These features exist in Edvora's reviewed development branch. Installation on real school infrastructure, physical-device acceptance, privacy-policy approval, independent encrypted-backup restore and security sign-off are not yet complete. Live payment collection and external school notifications remain disabled. Some transfers are supported only for unlinked students with no guardian, enrollment or financial records; other transfers remain blocked until access and records can be reconciled.</p>
     <a href="{{ route('public.security') }}" class="mt-4 inline-flex text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400">Learn about the security model →</a>
 </section>
 @endsection

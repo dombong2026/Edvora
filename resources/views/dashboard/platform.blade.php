@@ -40,7 +40,7 @@
             <div class="flex justify-between gap-4 py-3"><dt class="text-slate-500 dark:text-slate-400">Public registration</dt><dd class="font-semibold">{{ config('edvora.self_registration') ? 'Enabled' : 'Invitation only' }}</dd></div>
             <div class="flex justify-between gap-4 py-3"><dt class="text-slate-500 dark:text-slate-400">Institution access</dt><dd class="font-semibold">Explicit membership</dd></div>
         </dl>
-        <p class="mt-5 text-xs leading-6 text-slate-500 dark:text-slate-400">Enrollment, financial administration, and global institution-management actions are not enabled in this release. No simulated controls are shown.</p>
+        <p class="mt-5 text-xs leading-6 text-slate-500 dark:text-slate-400">Institution enrollment and financial modules are accessible only through separately verified school membership. The platform admin designation does not bypass tenant permissions; bank transfers, live payment processing and unrestricted global school controls remain disabled.</p>
     </section>
 </div>
 @endsection

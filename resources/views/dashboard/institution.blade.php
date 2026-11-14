@@ -160,10 +160,10 @@
             $roleGuidance = [
                 'administrator' => 'Oversee academic catalogs, student registry verification and classes within your institution.',
                 'director' => 'Review school academic operations, account invitations and student access with MFA.',
-                'subdirector' => 'Coordinate your assigned school leadership responsibilities while awaiting independently approved administrative modules.',
+                'subdirector' => 'Coordinate your assigned campus operational tasks and staff leave requests.',
                 'manager' => 'Manage authorized class setup, academic years and verified student records.',
                 'dean' => 'Coordinate academic years, subjects, classes and controlled school record workflows.',
-                'supervisor' => 'Review your assigned campus access and verified account security.',
+                'supervisor' => 'Manage assigned campus tasks, view school notices and submit own leave requests.',
                 'teacher' => 'Access only classes assigned to you, attendance, assessments and teaching schedules.',
                 'professor' => 'Work with your assigned classes, assessments, attendance and approved schedules.',
                 'student' => 'View your verified student record and your enrolled classes and published academic work.',
