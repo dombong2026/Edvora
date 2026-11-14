@@ -17,6 +17,7 @@ use App\Http\Controllers\ClassAssessmentController;
 use App\Http\Controllers\AcademicCorrectionController;
 use App\Http\Controllers\InstitutionHelpdeskController;
 use App\Http\Controllers\InstitutionAnnouncementController;
+use App\Http\Controllers\AcademicReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -135,6 +136,10 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('item')->middleware('throttle:30,1')->name('workspaces.loans.issue');
     Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/loans/{loan}/return', [OperationalWorkspaceController::class, 'returnLoan'])
         ->whereNumber('loan')->middleware('throttle:30,1')->name('workspaces.loans.return');
+    Route::get('/dashboard/institutions/{institution:slug}/reports', [AcademicReportController::class, 'index'])
+        ->middleware('throttle:60,1')->name('reports.index');
+    Route::get('/dashboard/institutions/{institution:slug}/reports/export', [AcademicReportController::class, 'export'])
+        ->middleware('throttle:15,1')->name('reports.export');
     Route::get('/dashboard/institutions/{institution:slug}/helpdesk', [InstitutionHelpdeskController::class, 'index'])->name('helpdesk.index');
     Route::post('/dashboard/institutions/{institution:slug}/helpdesk', [InstitutionHelpdeskController::class, 'store'])
         ->middleware('throttle:10,1')->name('helpdesk.store');
