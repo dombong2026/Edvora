@@ -189,7 +189,35 @@ final class ClassroomService
         }
 
         DB::transaction(function () use ($actor, $section, $teacher): void {
+            // Match scheduling lock order: institution before section, including reassignment.
+            Institution::query()->whereKey($section->institution_id)->lockForUpdate()->firstOrFail();
             $locked = ClassSection::query()->lockForUpdate()->findOrFail($section->id);
+            if ((int) $locked->teacher_user_id === (int) $teacher->id) {
+                return;
+            }
+
+            // Do not replace a teacher if the candidate already teaches another
+            // class at any overlapping times, including another campus.
+            $slots = \App\Models\ClassTimetableSlot::query()
+                ->where('class_section_id', $locked->id)
+                ->get(['weekday', 'starts_at', 'ends_at']);
+            foreach ($slots as $slot) {
+                $conflict = \App\Models\ClassTimetableSlot::query()
+                    ->join('class_sections', 'class_sections.id', '=', 'class_timetable_slots.class_section_id')
+                    ->where('class_sections.institution_id', $section->institution_id)
+                    ->where('class_sections.teacher_user_id', $teacher->id)
+                    ->where('class_timetable_slots.class_section_id', '!=', $locked->id)
+                    ->where('class_timetable_slots.weekday', $slot->weekday)
+                    ->where('class_timetable_slots.starts_at', '<', $slot->ends_at)
+                    ->where('class_timetable_slots.ends_at', '>', $slot->starts_at)
+                    ->exists();
+                if ($conflict) {
+                    throw ValidationException::withMessages([
+                        'email' => 'This teacher already has an overlapping class. Review the timetable before reassignment.',
+                    ]);
+                }
+            }
+
             $locked->forceFill(['teacher_user_id' => $teacher->id])->save();
             app(SecurityAudit::class)->record('class.teacher.assigned', $actor, $teacher, $section->institution, [
                 'class_section_id' => $section->id, 'campus_id' => $section->campus_id,
