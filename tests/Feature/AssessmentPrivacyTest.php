@@ -277,4 +277,89 @@ final class AssessmentPrivacyTest extends TestCase
             'points_earned' => '10.00', 'recorded_by' => $teacher->id,
         ]);
     }
+
+    public function test_published_grade_corrections_preserve_original_score_until_reviewed(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $student = $this->account($school, 'student', $campus);
+        $class = $this->class($campus, $director, $teacher);
+        $enrollment = $this->enroll($campus, $class, $director, 'S1', $student);
+
+        $service = app(ClassAssessmentService::class);
+        $assessment = $service->create($teacher, $class, [
+            'code' => 'SCORES', 'title' => 'Scored assessment', 'max_points' => '100',
+        ])->fresh();
+        $result = $service->record($teacher, $assessment, $enrollment, '75.50');
+        $service->submit($teacher, $assessment);
+        $service->publish($director, $assessment);
+
+        $this->actingAs($teacher)->post(route('corrections.store', [$school, $class]), [
+            'kind' => 'assessment', 'target_id' => $result->id,
+            'new_value' => '101.00', 'reason_code' => 'reassessment',
+        ])->assertSessionHasErrors('new_value');
+
+        $this->post(route('corrections.store', [$school, $class]), [
+            'kind' => 'assessment', 'target_id' => $result->id,
+            'new_value' => '80.25', 'reason_code' => 'reassessment',
+        ])->assertRedirect();
+        $correction = \App\Models\AcademicRecordCorrection::firstOrFail();
+        $this->assertSame('75.50', $result->fresh()->points_earned);
+        $this->assertSame('75.50', $correction->from_value);
+        $this->assertSame('80.25', $correction->to_value);
+
+        $this->actingAs($student)->get(route('assessments.show', [$school, $class, $assessment]))
+            ->assertOk()->assertSee('75.50')->assertDontSee('80.25');
+
+        $this->actingAs($director)->post(route('corrections.review', [$school, $class, $correction]), [
+            'decision' => 'approve',
+        ])->assertRedirect();
+        $this->assertSame('80.25', $result->fresh()->points_earned);
+        $this->assertSame('approved', $correction->fresh()->status);
+        $this->actingAs($student)->get(route('assessments.show', [$school, $class, $assessment]))
+            ->assertOk()->assertSee('80.25')->assertDontSee('75.50');
+    }
+
+    public function test_correction_is_restricted_to_current_teacher_and_own_institution(): void
+    {
+        $first = $this->school('first');
+        $other = $this->school('other');
+        $campus = $this->campus($first);
+        $director = $this->account($first, 'director');
+        $teacher = $this->account($first, 'teacher', $campus);
+        $unassigned = $this->account($first, 'teacher', $campus);
+        $foreignDirector = $this->account($other, 'director');
+        $class = $this->class($campus, $director, $teacher);
+        $enrollment = $this->enroll($campus, $class, $director, 'S1');
+        $service = app(ClassAssessmentService::class);
+        $assessment = $service->create($teacher, $class, [
+            'code' => 'SCORES', 'title' => 'Secure', 'max_points' => '20',
+        ]);
+        $result = $service->record($teacher, $assessment, $enrollment, '12');
+        $service->submit($teacher, $assessment);
+        $service->publish($director, $assessment);
+
+        $payload = [
+            'kind' => 'assessment', 'target_id' => $result->id,
+            'new_value' => '10', 'reason_code' => 'recording_error',
+        ];
+        $this->actingAs($unassigned)->post(route('corrections.store', [$first, $class]), $payload)
+            ->assertForbidden();
+        $this->actingAs($foreignDirector)->post(route('corrections.store', [$first, $class]), $payload)
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('academic_record_corrections', 0);
+
+        $this->actingAs($teacher)->post(route('corrections.store', [$first, $class]), $payload)
+            ->assertRedirect();
+        $correction = \App\Models\AcademicRecordCorrection::firstOrFail();
+
+        $this->actingAs($foreignDirector)->post(route('corrections.review', [$first, $class, $correction]), [
+            'decision' => 'approve',
+        ])->assertForbidden();
+        $this->assertSame('12.00', $result->fresh()->points_earned);
+    }
+
 }

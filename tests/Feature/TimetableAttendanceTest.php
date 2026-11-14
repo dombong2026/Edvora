@@ -355,4 +355,108 @@ final class TimetableAttendanceTest extends TestCase
         $this->assertSame('2027-06-13', $session->session_date->toDateString());
     }
 
+
+    public function test_attendance_corrections_require_independent_review_and_preserve_history(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $parent = $this->account($school, 'parent', $campus);
+        $class = $this->class($campus, $director, $teacher);
+        $student = $this->student($campus, $director, 'S1');
+        $enrollment = $this->enroll($class, $director, $student);
+        app(StudentRegistryService::class)->verifyGuardian($director, $student, $parent, 'parent');
+
+        $attendance = app(ClassAttendanceService::class);
+        $session = $attendance->create($teacher, $class, '2027-06-12');
+        $mark = $attendance->mark($teacher, $session, $enrollment, 'present');
+        $attendance->submit($teacher, $session);
+        $attendance->approve($director, $session);
+
+        $this->actingAs($teacher)->post(route('corrections.store', [$school, $class]), [
+            'kind' => 'attendance',
+            'target_id' => $mark->id,
+            'new_value' => 'late',
+            'reason_code' => 'recording_error',
+        ])->assertRedirect();
+        $correction = \App\Models\AcademicRecordCorrection::firstOrFail();
+        $this->assertSame('pending', $correction->status);
+        $this->assertSame('present', $mark->fresh()->status);
+        $this->assertSame('present', $correction->from_value);
+        $this->assertSame('late', $correction->to_value);
+
+        $this->post(route('corrections.store', [$school, $class]), [
+            'kind' => 'attendance',
+            'target_id' => $mark->id,
+            'new_value' => 'absent',
+            'reason_code' => 'verified_excuse',
+        ])->assertSessionHasErrors('correction');
+        $this->assertDatabaseCount('academic_record_corrections', 1);
+
+        $this->actingAs($parent)->get(route('attendance.show', [$school, $class, $session]))
+            ->assertOk()->assertSee('Present')->assertDontSee('Late');
+
+        $this->actingAs($teacher)->post(route('corrections.review', [$school, $class, $correction]), [
+            'decision' => 'approve',
+        ])->assertForbidden();
+
+        $this->actingAs($director)->post(route('corrections.review', [$school, $class, $correction]), [
+            'decision' => 'approve',
+        ])->assertRedirect();
+        $this->assertSame('late', $mark->fresh()->status);
+        $this->assertSame('approved', $correction->fresh()->status);
+        $this->assertSame($director->id, $correction->fresh()->reviewed_by);
+        $this->assertDatabaseHas('security_events', [
+            'event_type' => 'academic.correction.approved', 'actor_user_id' => $director->id,
+        ]);
+        $this->actingAs($parent)->get(route('attendance.show', [$school, $class, $session]))
+            ->assertOk()->assertSee('Late')->assertDontSee('Present');
+
+        $this->actingAs($teacher)->post(route('corrections.store', [$school, $class]), [
+            'kind' => 'attendance',
+            'target_id' => $mark->id,
+            'new_value' => 'absent',
+            'reason_code' => 'administrative_review',
+        ])->assertRedirect();
+        $second = \App\Models\AcademicRecordCorrection::orderByDesc('id')->firstOrFail();
+
+        $this->actingAs($director)->post(route('corrections.review', [$school, $class, $second]), [
+            'decision' => 'reject',
+        ])->assertRedirect();
+        $this->assertSame('late', $mark->fresh()->status);
+        $this->assertSame('rejected', $second->fresh()->status);
+        $this->assertDatabaseCount('academic_record_corrections', 2);
+
+        $this->post(route('corrections.review', [$school, $class, $correction]), [
+            'decision' => 'approve',
+        ])->assertSessionHasErrors('correction');
+    }
+
+    public function test_attendance_corrections_reject_cross_class_and_not_yet_approved_marks(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $first = $this->class($campus, $director, $teacher, 'A');
+        $second = $this->class($campus, $director, $teacher, 'B');
+        $student = $this->student($campus, $director, 'S1');
+        $enrollment = $this->enroll($first, $director, $student);
+        $attendance = app(ClassAttendanceService::class);
+        $session = $attendance->create($teacher, $first, '2027-06-12');
+        $mark = $attendance->mark($teacher, $session, $enrollment, 'present');
+
+        $this->actingAs($teacher)->post(route('corrections.store', [$school, $first]), [
+            'kind' => 'attendance', 'target_id' => $mark->id,
+            'new_value' => 'late', 'reason_code' => 'recording_error',
+        ])->assertSessionHasErrors('correction');
+
+        $this->post(route('corrections.store', [$school, $second]), [
+            'kind' => 'attendance', 'target_id' => $mark->id,
+            'new_value' => 'late', 'reason_code' => 'recording_error',
+        ])->assertNotFound();
+        $this->assertDatabaseCount('academic_record_corrections', 0);
+    }
+
 }
