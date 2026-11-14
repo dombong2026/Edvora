@@ -106,6 +106,7 @@ class InstitutionAuthorizationTest extends TestCase
         $campus = $this->campus($institution, 'main');
         $director = User::factory()->create();
         $this->assign($director, $institution, AccountRole::Director);
+        $director->forceFill(['mfa_enabled_at' => now(), 'mfa_secret' => app(\App\Services\Totp::class)->newSecret()])->save();
 
         $this->actingAs($director)->get(route('dashboard.campus', [$institution, $campus]))->assertOk();
     }
@@ -115,6 +116,7 @@ class InstitutionAuthorizationTest extends TestCase
         $institution = $this->institution('private-school');
         $platform = User::factory()->create();
         PlatformAdministrator::create(['user_id' => $platform->id]);
+        $platform->forceFill(['mfa_enabled_at' => now(), 'mfa_secret' => app(\App\Services\Totp::class)->newSecret()])->save();
 
         $this->actingAs($platform)->get('/dashboard')->assertOk()->assertSee('Edvora platform');
         $this->get(route('dashboard.institution', $institution))->assertForbidden();
