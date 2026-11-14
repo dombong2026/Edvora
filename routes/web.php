@@ -15,6 +15,8 @@ use App\Http\Controllers\ClassTimetableController;
 use App\Http\Controllers\ClassTimetableChangeController;
 use App\Http\Controllers\ClassAssessmentController;
 use App\Http\Controllers\AcademicCorrectionController;
+use App\Http\Controllers\InstitutionHelpdeskController;
+use App\Http\Controllers\InstitutionAnnouncementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -129,6 +131,24 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('item')->middleware('throttle:30,1')->name('workspaces.loans.issue');
     Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/loans/{loan}/return', [OperationalWorkspaceController::class, 'returnLoan'])
         ->whereNumber('loan')->middleware('throttle:30,1')->name('workspaces.loans.return');
+    Route::get('/dashboard/institutions/{institution:slug}/helpdesk', [InstitutionHelpdeskController::class, 'index'])->name('helpdesk.index');
+    Route::post('/dashboard/institutions/{institution:slug}/helpdesk', [InstitutionHelpdeskController::class, 'store'])
+        ->middleware('throttle:10,1')->name('helpdesk.store');
+    Route::get('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}', [InstitutionHelpdeskController::class, 'show'])
+        ->whereNumber('ticket')->name('helpdesk.show');
+    Route::post('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}/replies', [InstitutionHelpdeskController::class, 'reply'])
+        ->whereNumber('ticket')->middleware('throttle:20,1')->name('helpdesk.reply');
+    Route::post('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}/status', [InstitutionHelpdeskController::class, 'status'])
+        ->whereNumber('ticket')->middleware('throttle:15,1')->name('helpdesk.status');
+    Route::get('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'index'])
+        ->name('announcements.index');
+    Route::post('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'store'])
+        ->middleware('throttle:10,1')->name('announcements.store');
+    Route::get('/dashboard/institutions/{institution:slug}/announcements/{announcement}', [InstitutionAnnouncementController::class, 'show'])
+        ->whereNumber('announcement')->name('announcements.show');
+    Route::post('/dashboard/institutions/{institution:slug}/announcements/{announcement}/review', [InstitutionAnnouncementController::class, 'transition'])
+        ->whereNumber('announcement')->middleware('throttle:10,1')->name('announcements.transition');
+
     Route::get('/dashboard/institutions/{institution:slug}/members', [InstitutionMemberController::class, 'index'])->name('members.index');
     Route::post('/dashboard/institutions/{institution:slug}/members/roles', [InstitutionMemberController::class, 'grant'])
         ->middleware('throttle:10,1')->name('members.grant');
