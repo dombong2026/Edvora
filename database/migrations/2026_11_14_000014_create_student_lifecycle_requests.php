@@ -24,8 +24,10 @@ return new class extends Migration
             $table->timestamp('applied_at')->nullable();
             $table->timestamps();
 
-            $table->foreign(['student_profile_id', 'institution_id', 'campus_id'], 'lifecycle_student_tenant_fk')
-                ->references(['id', 'institution_id', 'campus_id'])->on('student_profiles')->restrictOnDelete();
+            // A transfer changes the student's campus, so the source-campus snapshot
+            // cannot participate in the profile FK. Institution identity is immutable.
+            $table->foreign(['student_profile_id', 'institution_id'], 'lifecycle_student_tenant_fk')
+                ->references(['id', 'institution_id'])->on('student_profiles')->restrictOnDelete();
             $table->foreign(['campus_id', 'institution_id'], 'lifecycle_campus_tenant_fk')
                 ->references(['id', 'institution_id'])->on('campuses')->restrictOnDelete();
             $table->foreign(['target_campus_id', 'institution_id'], 'lifecycle_dest_tenant_fk')
