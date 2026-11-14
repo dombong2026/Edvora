@@ -11,13 +11,16 @@ Do not import real school records into CI or disposable QA environments.
 - Public registration disabled by default; no role/membership auto-grants.
 - Institution membership plus scoped campus authorization and composite FKs.
 - No hard-coded admin account or default password; one-time interactive setup.
+- Encrypted TOTP enrollment, privileged-account MFA gate and one-time recovery codes.
+- Scoped institution invitations with 48-hour expiration and revocation.
+- Allowlisted metadata in an internal security-event audit ledger.
 - Separated platform admin rights: not a cross-tenant data bypass.
 - Deployment secrets and application keys are environment-specific.
 
 ## Outstanding production blockers
 
-- Strong administrator MFA and secure recovery, verified invitations, audit
-  trails of privilege grants and sensitive data access.
+- Independent administrator MFA and recovery review, verified locked-out
+  identity-reset procedure, and review of sensitive data access audit coverage.
 - Teacher/student/guardian ownership and custody restrictions.
 - Security reviews for exports, jobs, media, webhooks and every new module.
 - Local privacy and education compliance review, pen test, retention policy.

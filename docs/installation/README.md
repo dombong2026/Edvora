@@ -6,8 +6,7 @@
 3. Set Nginx document root to the project's public directory, never to root.
 4. Create dedicated least-privilege MySQL 8 credentials; do not reuse other
    sites' keys, Redis prefixes or private storage.
-5. Install dependencies from reviewed lockfiles. Initial dependency lockfiles
-   are still outstanding gates for v0.0.1.
+5. Install dependencies from reviewed lockfiles. Dependency lockfiles are committed; use composer install and npm ci.
 6. Create a private .env with APP_ENV=staging, APP_DEBUG=false, QA APP_URL,
    HTTPS and mail delivery disabled or in a sandbox.
 7. Generate a unique APP_KEY only for a new environment.

@@ -6,6 +6,8 @@ test -f artisan
 test -f composer.json
 test -f .env.example
 test -f LICENSE
+test -s composer.lock
+test -s package-lock.json
 test -f docs/operations/ACCEPTANCE.md
 test -f database/migrations/2026_11_14_000001_create_institution_access_tables.php
 

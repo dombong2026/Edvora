@@ -48,6 +48,7 @@ jobs:
       - name: PHP syntax and installation preflight
         run: |
           find app bootstrap config database routes tests -name '*.php' -print0 | xargs -0 -n1 php -l
+          for file in support/qa/*.sh; do bash -n "$file"; done
           bash support/qa/preflight.sh
       - name: Test tenant isolation and authentication
         run: php artisan test --stop-on-failure

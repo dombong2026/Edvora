@@ -15,7 +15,7 @@ PHP 8.3+ with Laravel-required extensions, MySQL 8, Composer 2, Node.js 22+, npm
 
 ## Local / disposable QA setup only
 
-1. Install dependencies with composer install, or run a reviewed composer update while the initial lockfile is being generated. Commit composer.lock before release acceptance.
+1. Install dependencies with composer install, or use composer install to respect the committed dependency lockfile.
 2. Copy .env.example to .env; configure a **disposable** local MySQL database and never commit .env.
 3. Run php artisan key:generate.
 4. Run php artisan migrate and php artisan db:seed --class=RoleSeeder.
@@ -27,14 +27,15 @@ Do not execute installation commands against production school records without a
 
 ## Implemented in v0.0.1 foundation
 
-- Laravel session authentication, sign-out, password reset, and registration disabled by default.
+- Laravel session authentication, sign-out, password reset, enforced privileged MFA and single-use recovery codes, and registration disabled by default.
 - Fifteen role codes: admin, teacher, student, librarian, parent, supervisor, manager, dean, professor, administrator, receptionist, cashier, director, subdirector and salesperson.
 - Separate platform administrator designation, institution memberships and role assignments.
-- Institution/campus boundaries, composite foreign keys, policies and secure role-assignment service.
+- Institution/campus boundaries, composite foreign keys, policies, audited privileged grants, and a secure role-assignment service.
+- Secure email-bound institution invitations with one-time acceptance, revocation and audit events.
 - Responsive premium dashboard, with persistent light, dark and system appearance.
 - Empty states and real authorized dashboard data; no fake records.
 
-**Not yet shipped:** admissions, learning, grades, finance, HR, libraries, MFA, invitations, notification delivery, and production integrations. This is not yet a complete school ERP.
+**Not yet shipped:** full admissions, learning, grades, finance, HR, libraries, account lockout recovery, approved mail delivery, and production integrations. This is not yet a complete school ERP.
 
 ## Documentation
 
@@ -43,6 +44,10 @@ Do not execute installation commands against production school records without a
 - [Security](docs/security/README.md)
 - [API status](docs/api/README.md)
 - [Acceptance gates](docs/operations/ACCEPTANCE.md)
+- [Independent staging QA](docs/operations/STAGING_ACCEPTANCE.md)
+- [Physical-device QA](docs/operations/DEVICE_ACCEPTANCE.md)
+- [Encrypted backup/restore](docs/operations/RECOVERY.md)
+- [MFA and invitation risk controls](docs/security/MFA_AND_INVITATIONS.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Development process
