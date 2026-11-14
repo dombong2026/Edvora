@@ -2,4 +2,15 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
-@theme { --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; }
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --color-edvora: #2563eb;
+}
+
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+body { -webkit-font-smoothing: antialiased; }
+button, a, input { transition: color .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease; }
+:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
