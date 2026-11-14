@@ -81,6 +81,28 @@
             @endif
         @endif
         <a href="{{ route('mfa.setup') }}" class="edvora-list-link"><span>Account security</span><span aria-hidden="true">→</span></a>
+        <a href="{{ route('announcements.index', $institution) }}" class="edvora-list-link"><span>School announcements</span><span aria-hidden="true">→</span></a>
+        <a href="{{ route('helpdesk.index', $institution) }}" class="edvora-list-link"><span>Support requests · {{ $myOpenTickets }} open</span><span aria-hidden="true">→</span></a>
+    </div>
+</section>
+
+<section class="edvora-surface mt-6 p-6" aria-labelledby="news-overview-heading">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h2 id="news-overview-heading" class="text-lg font-bold">School updates</h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Only published notices available to this account</p>
+        </div>
+        <a href="{{ route('announcements.index', $institution) }}" class="edvora-secondary">All notices</a>
+    </div>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        @forelse($latestNotices as $notice)
+            <a href="{{ route('announcements.show', [$institution, $notice->id]) }}" class="edvora-list-link">
+                <span class="min-w-0"><span class="block truncate">{{ $notice->title }}</span><span class="mt-1 block text-xs font-normal text-slate-500 dark:text-slate-400">{{ \Carbon\Carbon::parse($notice->published_at)->format('d M Y') }}</span></span>
+                <span aria-hidden="true">→</span>
+            </a>
+        @empty
+            <p class="text-sm text-slate-500 dark:text-slate-400">No published school updates yet.</p>
+        @endforelse
     </div>
 </section>
 

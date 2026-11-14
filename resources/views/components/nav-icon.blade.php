@@ -43,6 +43,12 @@
     @case('operations')
         <rect x="5" y="4" width="15" height="18" rx="2"/><path d="M9 4V2h7v2M9 10h6m-6 5 2 2 4-4"/>
         @break
+    @case('announcements')
+        <rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 10h8M8 14h5M8 18h8M8 3h8"/>
+        @break
+    @case('helpdesk')
+        <path d="M4 12a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-3v-7h5M4 12h5v7H6a2 2 0 0 1-2-2v-5ZM12 21h4"/>
+        @break
     @case('role')
         <rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M8 17a4 4 0 0 1 8 0"/>
         @break

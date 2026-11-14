@@ -30,6 +30,7 @@
             <a href="{{ route('account.index') }}" class="edvora-list-link"><span>My profile and password</span><span aria-hidden="true">→</span></a>
             <a href="{{ route('mfa.setup') }}" class="edvora-list-link"><span>Authenticator security</span><span aria-hidden="true">→</span></a>
             <a href="{{ route('account.index') }}#activity-title" class="edvora-list-link"><span>My activity history</span><span aria-hidden="true">→</span></a>
+            <a href="{{ route('public.help') }}" class="edvora-list-link"><span>Help & platform information</span><span aria-hidden="true">→</span></a>
         </div>
     </section>
     <section class="edvora-surface p-6">

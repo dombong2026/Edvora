@@ -20,6 +20,10 @@ use App\Http\Controllers\InstitutionAnnouncementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
+Route::get('/features', fn () => view('public.features'))->name('public.features');
+Route::get('/roles', fn () => view('public.roles'))->name('public.roles');
+Route::get('/security', fn () => view('public.security'))->name('public.security');
+Route::get('/help', fn () => view('public.help'))->name('public.help');
 Route::get('/invites/{token}', [InstitutionInvitationController::class, 'show'])->middleware('throttle:30,1')->name('invitations.show');
 Route::post('/invites/{token}/accept', [InstitutionInvitationController::class, 'accept'])->middleware('throttle:5,1')->name('invitations.accept');
 

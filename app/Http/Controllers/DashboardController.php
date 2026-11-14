@@ -13,6 +13,8 @@ use App\Services\ClassroomService;
 use App\Services\StudentRegistryService;
 use App\Services\InstitutionAccess;
 use App\Services\OperationalAccess;
+use App\Services\InstitutionEngagement;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -128,7 +130,22 @@ class DashboardController extends Controller
                 $module === $roleModule));
         }
 
+        $engagement = app(InstitutionEngagement::class);
+        $feed = $engagement->newsFeed($request->user(), $institution, 4);
+        if ($selectedCampus) {
+            $feed = $feed->filter(fn ($notice): bool =>
+                $notice->campus_id === null || (int) $notice->campus_id === (int) $selectedCampus->id)->values();
+        }
+
+        $myOpenTickets = DB::table('institution_help_tickets')
+            ->where('institution_id', $institution->id)
+            ->where('created_by', $request->user()->id)
+            ->where('status', '!=', 'closed')
+            ->count();
+
         return view('dashboard.institution', [
+            'latestNotices' => $feed,
+            'myOpenTickets' => $myOpenTickets,
             'availableModules' => $availableModules,
             'visibleClassCount' => $visibleClasses->count(),
             'visibleStudentCount' => $visibleStudents->count(),

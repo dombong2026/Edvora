@@ -5,5 +5,7 @@
     <p class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Account access</p>
     <h1 class="mt-3 text-2xl font-bold">No active institution workspace</h1>
     <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">Your account has no active institution role assigned. Contact your institution administrator to confirm your membership and campus assignment.</p>
+    <a href="{{ route('account.index') }}" class="edvora-secondary mt-6">My account settings</a>
+    <a href="{{ route('public.help') }}" class="edvora-secondary mt-6 ml-2">Help & access information</a>
 </div>
 @endsection

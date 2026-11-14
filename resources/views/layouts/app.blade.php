@@ -38,6 +38,12 @@
                 </a>
             </div>
             <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                <nav class="hidden items-center gap-1 xl:flex" aria-label="Public information">
+                    <a href="{{ route('public.features') }}" class="edvora-menu-item">Features</a>
+                    <a href="{{ route('public.roles') }}" class="edvora-menu-item">Roles</a>
+                    <a href="{{ route('public.security') }}" class="edvora-menu-item">Security</a>
+                    <a href="{{ route('public.help') }}" class="edvora-menu-item">Help</a>
+                </nav>
                 <fieldset class="flex items-center gap-0.5 rounded-xl border border-slate-200 bg-slate-100 p-1 text-[11px] font-semibold dark:border-slate-700 dark:bg-slate-900" aria-label="Appearance">
                     <legend class="sr-only">Appearance</legend>
                     <button type="button" data-theme-option="light" aria-pressed="false" class="rounded-lg px-2 py-1.5 hover:bg-slate-200 dark:hover:bg-slate-800">Light</button>
@@ -128,6 +134,13 @@
                                 </a>
                             @endforeach
                         @endif
+                        <p class="edvora-nav-heading pt-5">Communication</p>
+                        <a href="{{ route('announcements.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('announcements.*') ? 'is-active' : '' }}">
+                            <span class="edvora-nav-glyph"><x-nav-icon name="announcements" /></span><span>Announcements</span>
+                        </a>
+                        <a href="{{ route('helpdesk.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('helpdesk.*') ? 'is-active' : '' }}">
+                            <span class="edvora-nav-glyph"><x-nav-icon name="helpdesk" /></span><span>Support requests</span>
+                        </a>
                         <p class="edvora-nav-heading pt-5">Assigned roles</p>
                         @foreach($navRoles as $code)
                             @php $roleLabel = \App\Enums\AccountRole::tryFrom($code)?->label() ?? ucfirst($code); @endphp
@@ -148,7 +161,15 @@
         </main>
     </div>
     <footer class="mx-auto max-w-[1600px] border-t border-slate-200 px-6 py-6 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-        Edvora © {{ date('Y') }} Ton Samith · <a class="hover:text-blue-600 dark:hover:text-blue-400" href="https://tonsamith.com" rel="noopener noreferrer">Author</a>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <p>Edvora © {{ date('Y') }} Ton Samith · <a class="hover:text-blue-600 dark:hover:text-blue-400" href="https://tonsamith.com" rel="noopener noreferrer">Author</a></p>
+            <nav class="flex flex-wrap gap-x-4 gap-y-2" aria-label="Site footer">
+                <a href="{{ route('public.features') }}" class="hover:text-blue-600 dark:hover:text-blue-400">Features</a>
+                <a href="{{ route('public.roles') }}" class="hover:text-blue-600 dark:hover:text-blue-400">Roles</a>
+                <a href="{{ route('public.security') }}" class="hover:text-blue-600 dark:hover:text-blue-400">Security</a>
+                <a href="{{ route('public.help') }}" class="hover:text-blue-600 dark:hover:text-blue-400">Help</a>
+            </nav>
+        </div>
     </footer>
 </body>
 </html>
