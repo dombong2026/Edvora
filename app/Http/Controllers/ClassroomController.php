@@ -6,6 +6,7 @@ use App\Models\AcademicSubject;
 use App\Models\AcademicYear;
 use App\Models\Campus;
 use App\Models\ClassSection;
+use App\Models\ClassTimetableChange;
 use App\Models\Institution;
 use App\Models\StudentProfile;
 use App\Models\User;
@@ -88,6 +89,11 @@ final class ClassroomController extends Controller
         return view('dashboard.classrooms.show', [
             'timetableSlots' => $record->timetableSlots()->orderBy('weekday')->orderBy('starts_at')->limit(80)->get(),
             'canSchedule' => app(ClassTimetableService::class)->canCreate($request->user(), $record),
+            'pendingScheduleChanges' => app(ClassTimetableService::class)->canCreate($request->user(), $record)
+                ? ClassTimetableChange::query()->where('institution_id', $institution->id)
+                    ->where('class_section_id', $record->id)->where('status', 'pending')
+                    ->with('requester:id,name')->orderBy('id')->limit(50)->get()
+                : collect(),
             'institution' => $institution,
             'section' => $record,
             'canManage' => $canManage,

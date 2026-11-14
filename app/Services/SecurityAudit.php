@@ -21,7 +21,9 @@ final class SecurityAudit
             'student.created', 'student.account_linked', 'guardian.verified', 'guardian.revoked',
             'academics.year.activated', 'class.section.created', 'class.section.activated',
             'class.teacher.assigned', 'class.student.enrolled',
-            'class.timetable.created', 'attendance.opened', 'attendance.marked',
+            'class.timetable.created',
+            'class.timetable.revision.requested', 'class.timetable.revision.approved',
+            'class.timetable.revision.rejected', 'attendance.opened', 'attendance.marked',
             'attendance.submitted', 'attendance.approved',
             'assessment.created', 'assessment.result.recorded',
             'assessment.submitted', 'assessment.published',
@@ -33,7 +35,7 @@ final class SecurityAudit
         }
 
         foreach (array_keys($metadata) as $key) {
-            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship', 'academic_year_id', 'class_section_id', 'attendance_session_id', 'assessment_id', 'academic_correction_id'], true)) {
+            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship', 'academic_year_id', 'class_section_id', 'attendance_session_id', 'assessment_id', 'academic_correction_id', 'timetable_change_id'], true)) {
                 throw new \InvalidArgumentException('Unsupported audit metadata.');
             }
         }
