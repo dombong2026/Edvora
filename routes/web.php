@@ -1,0 +1,244 @@
+<?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\OperationalWorkspaceController;
+use App\Http\Controllers\InstitutionMemberController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MfaController;
+use App\Http\Controllers\InstitutionInvitationController;
+use App\Http\Controllers\AcademicCatalogController;
+use App\Http\Controllers\StudentRegistryController;
+use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\ClassAttendanceController;
+use App\Http\Controllers\ClassTimetableController;
+use App\Http\Controllers\ClassTimetableChangeController;
+use App\Http\Controllers\ClassAssessmentController;
+use App\Http\Controllers\AcademicCorrectionController;
+use App\Http\Controllers\InstitutionHelpdeskController;
+use App\Http\Controllers\InstitutionAnnouncementController;
+use App\Http\Controllers\AcademicReportController;
+use App\Http\Controllers\StudentLifecycleController;
+use App\Http\Controllers\StudentTranscriptController;
+use App\Http\Controllers\StudentResultStatementController;
+use App\Http\Controllers\InternalInboxController;
+use App\Http\Controllers\StaffLeaveController;
+use App\Http\Controllers\PayrollPlanningController;
+use App\Http\Controllers\ManualFinancialController;
+use App\Http\Controllers\ExamScheduleController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', fn () => view('welcome'))->name('home');
+Route::get('/features', fn () => view('public.features'))->name('public.features');
+Route::get('/roles', fn () => view('public.roles'))->name('public.roles');
+Route::get('/security', fn () => view('public.security'))->name('public.security');
+Route::get('/help', fn () => view('public.help'))->name('public.help');
+Route::get('/invites/{token}', [InstitutionInvitationController::class, 'show'])->middleware('throttle:30,1')->name('invitations.show');
+Route::post('/invites/{token}/accept', [InstitutionInvitationController::class, 'accept'])->middleware('throttle:5,1')->name('invitations.accept');
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/two-factor/challenge', [MfaController::class, 'challenge'])->name('mfa.challenge');
+    Route::post('/two-factor/challenge', [MfaController::class, 'completeChallenge'])->middleware('throttle:5,1')->name('mfa.challenge.complete');
+    Route::post('/two-factor/cancel', [MfaController::class, 'cancelChallenge'])->name('mfa.challenge.cancel');
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:5,1')->name('login.store');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.store');
+    Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'emailResetLink'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->middleware('throttle:5,1')->name('password.update');
+});
+
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+    Route::patch('/account/profile', [AccountController::class, 'updateProfile'])
+        ->middleware('throttle:20,1')->name('account.profile.update');
+    Route::put('/account/password', [AccountController::class, 'updatePassword'])
+        ->middleware('throttle:5,1')->name('account.password.update');
+    Route::get('/account/security/mfa', [MfaController::class, 'setup'])->name('mfa.setup');
+    Route::post('/account/security/mfa', [MfaController::class, 'enable'])->middleware('throttle:5,1')->name('mfa.enable');
+    Route::get('/account/security/mfa/recovery', [MfaController::class, 'recoveryCodes'])->name('mfa.recovery');
+    Route::middleware('privileged.mfa')->group(function (): void {
+    Route::post('/dashboard/institutions/{institution:slug}/invitations', [InstitutionInvitationController::class, 'store'])
+        ->middleware('throttle:5,1')->name('invitations.store');
+    Route::delete('/dashboard/institutions/{institution:slug}/invitations/{invitation}', [InstitutionInvitationController::class, 'revoke'])
+        ->middleware('throttle:10,1')->name('invitations.revoke');
+    Route::get('/dashboard/institutions/{institution:slug}/academic', [AcademicCatalogController::class, 'index'])
+        ->name('academic.index');
+    Route::post('/dashboard/institutions/{institution:slug}/academic/years', [AcademicCatalogController::class, 'createYear'])
+        ->middleware('throttle:20,1')->name('academic.years.store');
+    Route::post('/dashboard/institutions/{institution:slug}/academic/subjects', [AcademicCatalogController::class, 'createSubject'])
+        ->middleware('throttle:20,1')->name('academic.subjects.store');
+    Route::get('/dashboard/institutions/{institution:slug}/students', [StudentRegistryController::class, 'index'])
+        ->name('students.index');
+    Route::post('/dashboard/institutions/{institution:slug}/students', [StudentRegistryController::class, 'store'])
+        ->middleware('throttle:20,1')->name('students.store');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}', [StudentRegistryController::class, 'show'])
+        ->whereNumber('student')->name('students.show');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/lifecycle', [StudentLifecycleController::class, 'index'])
+        ->whereNumber('student')->name('students.lifecycle.index');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/lifecycle', [StudentLifecycleController::class, 'store'])
+        ->whereNumber('student')->middleware('throttle:10,1')->name('students.lifecycle.store');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/lifecycle/{lifecycle}/review', [StudentLifecycleController::class, 'review'])
+        ->whereNumber('student')->whereNumber('lifecycle')->middleware('throttle:10,1')->name('students.lifecycle.review');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/results', [StudentTranscriptController::class, 'show'])
+        ->whereNumber('student')->name('students.transcript.show');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/results/export', [StudentTranscriptController::class, 'export'])
+        ->whereNumber('student')->middleware('throttle:15,1')->name('students.transcript.export');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/statements', [StudentResultStatementController::class, 'index'])
+        ->whereNumber('student')->name('students.statements.index');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/statements', [StudentResultStatementController::class, 'store'])
+        ->whereNumber('student')->middleware('throttle:10,1')->name('students.statements.store');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}/review', [StudentResultStatementController::class, 'review'])
+        ->whereNumber('student')->whereNumber('statement')->middleware('throttle:10,1')->name('students.statements.review');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}/revoke', [StudentResultStatementController::class, 'revoke'])
+        ->whereNumber('student')->whereNumber('statement')->middleware('throttle:10,1')->name('students.statements.revoke');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}', [StudentResultStatementController::class, 'show'])
+        ->whereNumber('student')->whereNumber('statement')->name('students.statements.show');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}/export', [StudentResultStatementController::class, 'export'])
+        ->whereNumber('student')->whereNumber('statement')->middleware('throttle:15,1')->name('students.statements.export');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/account', [StudentRegistryController::class, 'linkAccount'])
+        ->whereNumber('student')->middleware('throttle:10,1')->name('students.account.link');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/guardians', [StudentRegistryController::class, 'verifyGuardian'])
+        ->whereNumber('student')->middleware('throttle:10,1')->name('students.guardians.verify');
+    Route::delete('/dashboard/institutions/{institution:slug}/students/{student}/guardians/{link}', [StudentRegistryController::class, 'revokeGuardian'])
+        ->whereNumber('student')->whereNumber('link')->middleware('throttle:10,1')->name('students.guardians.revoke');
+    Route::post('/dashboard/institutions/{institution:slug}/academic/years/{year}/activate', [AcademicCatalogController::class, 'activateYear'])
+        ->whereNumber('year')->middleware('throttle:10,1')->name('academic.years.activate');
+    Route::get('/dashboard/institutions/{institution:slug}/classes', [ClassroomController::class, 'index'])
+        ->name('classrooms.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes', [ClassroomController::class, 'store'])
+        ->middleware('throttle:15,1')->name('classrooms.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}', [ClassroomController::class, 'show'])
+        ->whereNumber('section')->name('classrooms.show');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/teacher', [ClassroomController::class, 'assignTeacher'])
+        ->whereNumber('section')->middleware('throttle:10,1')->name('classrooms.teacher.assign');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/activate', [ClassroomController::class, 'activate'])
+        ->whereNumber('section')->middleware('throttle:10,1')->name('classrooms.activate');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/students', [ClassroomController::class, 'enroll'])
+        ->whereNumber('section')->middleware('throttle:20,1')->name('classrooms.students.enroll');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable', [ClassTimetableController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('timetable.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/attendance', [ClassAttendanceController::class, 'index'])
+        ->whereNumber('section')->name('attendance.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance', [ClassAttendanceController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('attendance.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}', [ClassAttendanceController::class, 'show'])
+        ->whereNumber('section')->whereNumber('session')->name('attendance.show');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/marks', [ClassAttendanceController::class, 'mark'])
+        ->whereNumber('section')->whereNumber('session')->middleware('throttle:120,1')->name('attendance.mark');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/submit', [ClassAttendanceController::class, 'submit'])
+        ->whereNumber('section')->whereNumber('session')->middleware('throttle:15,1')->name('attendance.submit');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/approve', [ClassAttendanceController::class, 'approve'])
+        ->whereNumber('section')->whereNumber('session')->middleware('throttle:10,1')->name('attendance.approve');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/exams', [ExamScheduleController::class, 'index'])
+        ->whereNumber('section')->name('exams.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/exams', [ExamScheduleController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('exams.store');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/exams/{exam}/submit', [ExamScheduleController::class, 'submit'])
+        ->whereNumber('section')->whereNumber('exam')->middleware('throttle:15,1')->name('exams.submit');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/exams/{exam}/review', [ExamScheduleController::class, 'review'])
+        ->whereNumber('section')->whereNumber('exam')->middleware('throttle:15,1')->name('exams.review');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/assessments', [ClassAssessmentController::class, 'index'])
+        ->whereNumber('section')->name('assessments.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments', [ClassAssessmentController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('assessments.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}', [ClassAssessmentController::class, 'show'])
+        ->whereNumber('section')->whereNumber('assessment')->name('assessments.show');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/results', [ClassAssessmentController::class, 'record'])
+        ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:120,1')->name('assessments.record');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/submit', [ClassAssessmentController::class, 'submit'])
+        ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:15,1')->name('assessments.submit');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/publish', [ClassAssessmentController::class, 'publish'])
+        ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:10,1')->name('assessments.publish');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/corrections', [AcademicCorrectionController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:25,1')->name('corrections.store');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/corrections/{correction}/review', [AcademicCorrectionController::class, 'review'])
+        ->whereNumber('section')->whereNumber('correction')->middleware('throttle:15,1')->name('corrections.review');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable/{slot}/changes', [ClassTimetableChangeController::class, 'store'])
+        ->whereNumber('section')->whereNumber('slot')->middleware('throttle:15,1')->name('timetable.changes.store');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable/changes/{change}/review', [ClassTimetableChangeController::class, 'review'])
+        ->whereNumber('section')->whereNumber('change')->middleware('throttle:15,1')->name('timetable.changes.review');
+    Route::get('/dashboard/institutions/{institution:slug}/workspaces/{module}', [OperationalWorkspaceController::class, 'index'])
+        ->whereIn('module', ['library', 'cashier', 'reception', 'admissions', 'operations'])
+        ->name('workspaces.index');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/{module}', [OperationalWorkspaceController::class, 'store'])
+        ->whereIn('module', ['library', 'cashier', 'reception', 'admissions', 'operations'])
+        ->middleware('throttle:20,1')->name('workspaces.store');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/{module}/{record}/status', [OperationalWorkspaceController::class, 'transition'])
+        ->whereIn('module', ['cashier', 'reception', 'admissions', 'operations'])
+        ->whereNumber('record')->middleware('throttle:30,1')->name('workspaces.transition');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/{item}/loans', [OperationalWorkspaceController::class, 'issueLoan'])
+        ->whereNumber('item')->middleware('throttle:30,1')->name('workspaces.loans.issue');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/loans/{loan}/return', [OperationalWorkspaceController::class, 'returnLoan'])
+        ->whereNumber('loan')->middleware('throttle:30,1')->name('workspaces.loans.return');
+    Route::get('/dashboard/institutions/{institution:slug}/finance', [ManualFinancialController::class, 'index'])
+        ->name('finance.index');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/invoices', [ManualFinancialController::class, 'storeInvoice'])
+        ->middleware('throttle:15,1')->name('finance.invoices.store');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/invoices/{invoice}/review', [ManualFinancialController::class, 'reviewInvoice'])
+        ->whereNumber('invoice')->middleware('throttle:15,1')->name('finance.invoices.review');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/invoices/{invoice}/matches', [ManualFinancialController::class, 'storeMatch'])
+        ->whereNumber('invoice')->middleware('throttle:15,1')->name('finance.matches.store');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/matches/{match}/review', [ManualFinancialController::class, 'reviewMatch'])
+        ->whereNumber('match')->middleware('throttle:15,1')->name('finance.matches.review');
+
+    Route::get('/dashboard/institutions/{institution:slug}/staff/leave', [StaffLeaveController::class, 'index'])
+        ->name('staff.leave.index');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/leave', [StaffLeaveController::class, 'store'])
+        ->middleware('throttle:10,1')->name('staff.leave.store');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/leave/{leave}/review', [StaffLeaveController::class, 'review'])
+        ->whereNumber('leave')->middleware('throttle:10,1')->name('staff.leave.review');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/leave/{leave}/cancel', [StaffLeaveController::class, 'cancel'])
+        ->whereNumber('leave')->middleware('throttle:10,1')->name('staff.leave.cancel');
+    Route::get('/dashboard/institutions/{institution:slug}/staff/payroll', [PayrollPlanningController::class, 'index'])
+        ->name('staff.payroll.index');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/payroll', [PayrollPlanningController::class, 'store'])
+        ->middleware('throttle:10,1')->name('staff.payroll.store');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/payroll/{plan}/review', [PayrollPlanningController::class, 'review'])
+        ->whereNumber('plan')->middleware('throttle:10,1')->name('staff.payroll.review');
+
+    Route::get('/dashboard/institutions/{institution:slug}/reports', [AcademicReportController::class, 'index'])
+        ->middleware('throttle:60,1')->name('reports.index');
+    Route::get('/dashboard/institutions/{institution:slug}/reports/export', [AcademicReportController::class, 'export'])
+        ->middleware('throttle:15,1')->name('reports.export');
+    Route::get('/dashboard/institutions/{institution:slug}/helpdesk', [InstitutionHelpdeskController::class, 'index'])->name('helpdesk.index');
+    Route::post('/dashboard/institutions/{institution:slug}/helpdesk', [InstitutionHelpdeskController::class, 'store'])
+        ->middleware('throttle:10,1')->name('helpdesk.store');
+    Route::get('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}', [InstitutionHelpdeskController::class, 'show'])
+        ->whereNumber('ticket')->name('helpdesk.show');
+    Route::post('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}/replies', [InstitutionHelpdeskController::class, 'reply'])
+        ->whereNumber('ticket')->middleware('throttle:20,1')->name('helpdesk.reply');
+    Route::post('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}/status', [InstitutionHelpdeskController::class, 'status'])
+        ->whereNumber('ticket')->middleware('throttle:15,1')->name('helpdesk.status');
+    Route::get('/dashboard/institutions/{institution:slug}/inbox', [InternalInboxController::class, 'index'])
+        ->name('inbox.index');
+    Route::post('/dashboard/institutions/{institution:slug}/inbox/{notification}', [InternalInboxController::class, 'mark'])
+        ->whereNumber('notification')->middleware('throttle:30,1')->name('inbox.mark');
+    Route::get('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'index'])
+        ->name('announcements.index');
+    Route::post('/dashboard/institutions/{institution:slug}/announcements/{announcement}/read', [InstitutionAnnouncementController::class, 'markRead'])
+        ->whereNumber('announcement')->middleware('throttle:30,1')->name('announcements.read');
+    Route::post('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'store'])
+        ->middleware('throttle:10,1')->name('announcements.store');
+    Route::get('/dashboard/institutions/{institution:slug}/announcements/{announcement}', [InstitutionAnnouncementController::class, 'show'])
+        ->whereNumber('announcement')->name('announcements.show');
+    Route::post('/dashboard/institutions/{institution:slug}/announcements/{announcement}/review', [InstitutionAnnouncementController::class, 'transition'])
+        ->whereNumber('announcement')->middleware('throttle:10,1')->name('announcements.transition');
+
+    Route::get('/dashboard/institutions/{institution:slug}/members', [InstitutionMemberController::class, 'index'])->name('members.index');
+    Route::post('/dashboard/institutions/{institution:slug}/members/roles', [InstitutionMemberController::class, 'grant'])
+        ->middleware('throttle:10,1')->name('members.grant');
+    Route::get('/dashboard/platform', [DashboardController::class, 'platform'])->name('dashboard.platform');
+    Route::redirect('/Dashboard', '/dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])
+        ->name('dashboard.institution');
+    Route::get('/dashboard/institutions/{institution:slug}/campuses/{campus:slug}', [DashboardController::class, 'campus'])
+        ->scopeBindings()->name('dashboard.campus');
+    Route::get('/dashboard/institutions/{institution:slug}/roles/{role}', [DashboardController::class, 'role'])
+        ->name('dashboard.role');
+    });
+});

@@ -1,0 +1,50 @@
+name: Generate reviewed dependency lockfiles
+
+on:
+  push:
+    branches:
+      - feature/edvora-v0.0.1-foundation
+    paths:
+      - .github/workflows/generate-lockfiles.yml
+      - composer.json
+      - package.json
+
+permissions:
+  contents: write
+
+jobs:
+  lockfiles:
+    if: github.repository == 'dombong2026/Edvora' && github.ref == 'refs/heads/feature/edvora-v0.0.1-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, pdo_sqlite, dom, xml, fileinfo
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve locked dependency graph without running scripts
+        run: |
+          composer update --no-install --no-scripts --no-interaction --no-progress --prefer-dist
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          composer validate --no-check-publish
+          test -s composer.lock
+          test -s package-lock.json
+          git diff --check
+      - name: Commit lockfiles to feature branch only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- composer.lock package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: lock exact Composer and npm dependencies'
+            git push origin HEAD:refs/heads/feature/edvora-v0.0.1-foundation
+          fi
