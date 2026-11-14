@@ -14,4 +14,4 @@
 Every institution link is calculated with `InstitutionAccess` and server-side academic/registry/classroom services. Navigation visibility is guidance, not an authorization mechanism. Existing route-level policy and tenant checks remain authoritative.
 
 ## Acceptance
-Run PHPUnit suite, PHP static syntax checks, npm build, and MySQL migrations on isolated staging. Verify all 15 accounts in Chrome/Safari/Firefox and narrow-screen mobile with keyboard navigation, profile save, wrong/current password, theme persistence, sidebar show/hide, campus/role switching and outsider permissions. No production deployment or main-branch merge before explicit acceptance.
+Automated smoke tests render all 14 institution roles in the same account shell and include the platform admin console. Run PHPUnit suite, PHP static syntax checks, npm build, and MySQL migrations on isolated staging. Verify all 15 accounts in Chrome/Safari/Firefox and narrow-screen mobile with keyboard navigation, profile save, wrong/current password, theme persistence, sidebar show/hide, campus/role switching and outsider permissions. No production deployment or main-branch merge before explicit acceptance.
