@@ -109,6 +109,85 @@
     @endif
 </section>
 
+@if($canSchedule)
+<section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+    <h2 class="text-lg font-bold">Reviewable timetable revisions</h2>
+    <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">Changing an existing class schedule requires another verified institution officer. New times and rooms are checked again when approved; the current timetable remains active until then.</p>
+    <div class="mt-5 divide-y divide-slate-200 dark:divide-slate-800">
+        @forelse($timetableSlots as $slot)
+            <form method="POST" action="{{ route('timetable.changes.store', [$institution, $section, $slot]) }}" class="grid gap-3 py-4 md:grid-cols-[minmax(110px,1fr)_repeat(3,minmax(0,130px))_minmax(140px,1.2fr)_auto] md:items-end">
+                @csrf
+                <div class="text-sm">
+                    <p class="font-semibold">Slot {{ $slot->id }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Currently {{ ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][$slot->weekday - 1] }} {{ substr($slot->starts_at, 0, 5) }}–{{ substr($slot->ends_at, 0, 5) }} · {{ $slot->room_name ?: 'No room' }}</p>
+                </div>
+                <div>
+                    <label for="revision-day-{{ $slot->id }}" class="mb-1 block text-xs font-semibold">New weekday</label>
+                    <select id="revision-day-{{ $slot->id }}" name="weekday" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">
+                        @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $dayIndex => $day)
+                            <option value="{{ $dayIndex+1 }}" @selected($dayIndex+1 === $slot->weekday)>{{ $day }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="revision-start-{{ $slot->id }}" class="mb-1 block text-xs font-semibold">Start</label>
+                    <input id="revision-start-{{ $slot->id }}" type="time" name="starts_at" required value="{{ substr($slot->starts_at, 0, 5) }}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">
+                </div>
+                <div>
+                    <label for="revision-end-{{ $slot->id }}" class="mb-1 block text-xs font-semibold">End</label>
+                    <input id="revision-end-{{ $slot->id }}" type="time" name="ends_at" required value="{{ substr($slot->ends_at, 0, 5) }}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">
+                </div>
+                <div class="space-y-2">
+                    <label for="revision-room-{{ $slot->id }}" class="block text-xs font-semibold">New room</label>
+                    <input id="revision-room-{{ $slot->id }}" type="text" name="room_name" maxlength="100" value="{{ $slot->room_name }}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">
+                    <label for="revision-reason-{{ $slot->id }}" class="sr-only">Revision reason</label>
+                    <select id="revision-reason-{{ $slot->id }}" name="reason_code" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">
+                        @foreach(\App\Services\ClassTimetableChangeService::REASONS as $reason)
+                            <option value="{{ $reason }}">{{ ucfirst(str_replace('_', ' ', $reason)) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="rounded-xl border border-blue-200 px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950">Request change</button>
+            </form>
+        @empty
+            <p class="py-4 text-sm text-slate-500">Create a recurring timetable slot before requesting a revision.</p>
+        @endforelse
+    </div>
+    @error('timetable') <p role="alert" class="mt-3 text-sm text-red-600">{{ $message }}</p> @enderror
+    @error('starts_at') <p role="alert" class="mt-3 text-sm text-red-600">{{ $message }}</p> @enderror
+    @error('room_name') <p role="alert" class="mt-3 text-sm text-red-600">{{ $message }}</p> @enderror
+
+    @if($pendingScheduleChanges->isNotEmpty())
+        <h3 class="mt-6 border-t border-slate-200 pt-5 text-sm font-bold dark:border-slate-800">Awaiting an independent decision</h3>
+        <ul class="mt-3 divide-y divide-slate-200 dark:divide-slate-800">
+            @foreach($pendingScheduleChanges as $change)
+                <li class="flex flex-wrap items-center justify-between gap-4 py-4">
+                    <div class="text-sm">
+                        <p class="font-semibold">Slot {{ $change->timetable_slot_id }} · {{ ucfirst(str_replace('_', ' ', $change->reason_code)) }}</p>
+                        <p class="mt-1 text-xs text-slate-500">Requested by {{ $change->requester?->name }}</p>
+                        <p class="mt-1 text-xs text-slate-500">From {{ ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][$change->old_weekday-1] }} {{ substr($change->old_starts_at, 0, 5) }}–{{ substr($change->old_ends_at, 0, 5) }} ({{ $change->old_room_name ?: 'No room' }})</p>
+                        <p class="mt-1 text-xs text-slate-500">To {{ ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][$change->new_weekday-1] }} {{ substr($change->new_starts_at, 0, 5) }}–{{ substr($change->new_ends_at, 0, 5) }} ({{ $change->new_room_name ?: 'No room' }})</p>
+                    </div>
+                    @if((int)$change->requested_by !== (int)auth()->id())
+                        <div class="flex flex-wrap gap-2">
+                            @foreach(['approve' => 'Approve', 'reject' => 'Reject'] as $decision => $label)
+                                <form method="POST" action="{{ route('timetable.changes.review', [$institution, $section, $change]) }}">
+                                    @csrf
+                                    <input type="hidden" name="decision" value="{{ $decision }}">
+                                    <button type="submit" class="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">{{ $label }}</button>
+                                </form>
+                            @endforeach
+                        </div>
+                    @else
+                        <span class="text-xs font-semibold text-slate-500">Awaiting a separate reviewer</span>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+    @endif
+</section>
+@endif
+
 @if($canManage)
 <section class="mt-6 grid gap-5 lg:grid-cols-2">
     <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
