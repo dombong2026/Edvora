@@ -7,6 +7,10 @@ use App\Models\Campus;
 use App\Models\Institution;
 use App\Models\InstitutionMembership;
 use App\Models\InstitutionInvitation;
+use App\Models\Role;
+use App\Services\AcademicCatalogService;
+use App\Services\ClassroomService;
+use App\Services\StudentRegistryService;
 use App\Services\InstitutionAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,8 +35,26 @@ class DashboardController extends Controller
         }
 
         return $user->isPlatformAdmin()
-            ? view('dashboard.platform')
+            ? $this->platform($request, $access)
             : view('dashboard.unassigned');
+    }
+
+    public function platform(Request $request, InstitutionAccess $access): View
+    {
+        $user = $request->user();
+        abort_unless($user->isPlatformAdmin(), 403);
+
+        // Only memberships the current administrator holds may be counted.
+        $authorizedInstitutionCount = $user->memberships()->where('status', 'active')
+            ->with('institution')->get()
+            ->filter(fn ($membership): bool => $membership->institution !== null
+                && $access->canViewInstitution($user, $membership->institution))
+            ->count();
+
+        return view('dashboard.platform', [
+            'roleCount' => Role::query()->count(),
+            'authorizedInstitutionCount' => $authorizedInstitutionCount,
+        ]);
     }
 
     public function institution(Request $request, Institution $institution, InstitutionAccess $access): View
@@ -75,7 +97,17 @@ class DashboardController extends Controller
             ->whereHas('role', fn ($q) => $q->whereIn('code', ['administrator', 'director']))
             ->exists();
 
+        $visibleClasses = app(ClassroomService::class)->visible($request->user(), $institution);
+        $visibleStudents = app(StudentRegistryService::class)->visible($request->user(), $institution);
+        if ($selectedCampus) {
+            $visibleClasses = $visibleClasses->where('campus_id', $selectedCampus->id);
+            $visibleStudents = $visibleStudents->where('campus_id', $selectedCampus->id);
+        }
+
         return view('dashboard.institution', [
+            'visibleClassCount' => $visibleClasses->count(),
+            'visibleStudentCount' => $visibleStudents->count(),
+            'canManageAcademics' => app(AcademicCatalogService::class)->canManage($request->user(), $institution),
             'institution' => $institution,
             'campuses' => $campuses,
             'selectedCampus' => $selectedCampus,

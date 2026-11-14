@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MfaController;
 use App\Http\Controllers\InstitutionInvitationController;
@@ -34,6 +35,11 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+    Route::patch('/account/profile', [AccountController::class, 'updateProfile'])
+        ->middleware('throttle:20,1')->name('account.profile.update');
+    Route::put('/account/password', [AccountController::class, 'updatePassword'])
+        ->middleware('throttle:5,1')->name('account.password.update');
     Route::get('/account/security/mfa', [MfaController::class, 'setup'])->name('mfa.setup');
     Route::post('/account/security/mfa', [MfaController::class, 'enable'])->middleware('throttle:5,1')->name('mfa.enable');
     Route::get('/account/security/mfa/recovery', [MfaController::class, 'recoveryCodes'])->name('mfa.recovery');
@@ -108,6 +114,7 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->whereNumber('slot')->middleware('throttle:15,1')->name('timetable.changes.store');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable/changes/{change}/review', [ClassTimetableChangeController::class, 'review'])
         ->whereNumber('section')->whereNumber('change')->middleware('throttle:15,1')->name('timetable.changes.review');
+    Route::get('/dashboard/platform', [DashboardController::class, 'platform'])->name('dashboard.platform');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])

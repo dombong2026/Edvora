@@ -18,6 +18,7 @@ final class SecurityAudit
     ): void {
         if (! in_array($event, [
             'mfa.enabled', 'mfa.recovery.used', 'invitation.sent',
+            'profile.updated', 'password.updated',
             'student.created', 'student.account_linked', 'guardian.verified', 'guardian.revoked',
             'academics.year.activated', 'class.section.created', 'class.section.activated',
             'class.teacher.assigned', 'class.student.enrolled',

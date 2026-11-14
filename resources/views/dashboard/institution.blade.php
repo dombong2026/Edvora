@@ -10,7 +10,7 @@
     <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">Active institution</span>
 </div>
 
-<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Campuses you can access</p>
         <p class="mt-4 text-4xl font-bold tracking-tight">{{ $campuses->count() }}</p>
@@ -30,7 +30,40 @@
         <p class="mt-4 text-4xl font-bold tracking-tight">{{ count($roleCodes) }}</p>
         <p class="mt-2 text-xs text-slate-500">Granted by your institution</p>
     </article>
+    <article class="edvora-surface p-6">
+        <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Classes I can access</p>
+        <p class="mt-4 text-4xl font-bold tracking-tight">{{ $visibleClassCount }}</p>
+        <a href="{{ route('classrooms.index', $institution) }}" class="mt-2 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Open class workspace</a>
+    </article>
+    <article class="edvora-surface p-6">
+        <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Student records I can access</p>
+        <p class="mt-4 text-4xl font-bold tracking-tight">{{ $visibleStudentCount }}</p>
+        <a href="{{ route('students.index', $institution) }}" class="mt-2 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Open student records</a>
+    </article>
 </div>
+
+<section class="edvora-surface mt-6 p-6" aria-label="Available workspace actions">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h2 class="text-lg font-bold">Continue your work</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Only implemented, permission-checked workspaces are linked.</p>
+        </div>
+        <a href="{{ route('account.index') }}" class="edvora-secondary">My account</a>
+    </div>
+    <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        @if($canManageAcademics)
+            <a href="{{ route('academic.index', $institution) }}" class="edvora-list-link"><span>Academic catalog</span><span aria-hidden="true">→</span></a>
+            <a href="{{ route('students.index', $institution) }}" class="edvora-list-link"><span>Student registry</span><span aria-hidden="true">→</span></a>
+            <a href="{{ route('classrooms.index', $institution) }}" class="edvora-list-link"><span>Manage classrooms</span><span aria-hidden="true">→</span></a>
+        @elseif(count(array_intersect($roleCodes, ['teacher', 'professor', 'student', 'parent'])) > 0)
+            <a href="{{ route('classrooms.index', $institution) }}" class="edvora-list-link"><span>My classes</span><span aria-hidden="true">→</span></a>
+            @if(count(array_intersect($roleCodes, ['student', 'parent'])) > 0)
+                <a href="{{ route('students.index', $institution) }}" class="edvora-list-link"><span>My linked student records</span><span aria-hidden="true">→</span></a>
+            @endif
+        @endif
+        <a href="{{ route('mfa.setup') }}" class="edvora-list-link"><span>Account security</span><span aria-hidden="true">→</span></a>
+    </div>
+</section>
 
 <div class="mt-6 grid gap-5 xl:grid-cols-2">
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -50,8 +83,26 @@
         </div>
     </section>
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        @php
+            $roleGuidance = [
+                'administrator' => 'Oversee academic catalogs, student registry verification and classes within your institution.',
+                'director' => 'Review school academic operations, account invitations and student access with MFA.',
+                'subdirector' => 'Coordinate your assigned school leadership responsibilities while awaiting independently approved administrative modules.',
+                'manager' => 'Manage authorized class setup, academic years and verified student records.',
+                'dean' => 'Coordinate academic years, subjects, classes and controlled school record workflows.',
+                'supervisor' => 'Review your assigned campus access and verified account security.',
+                'teacher' => 'Access only classes assigned to you, attendance, assessments and teaching schedules.',
+                'professor' => 'Work with your assigned classes, assessments, attendance and approved schedules.',
+                'student' => 'View your verified student record and your enrolled classes and published academic work.',
+                'parent' => 'Follow only student records and classes linked through a verified guardian relationship.',
+                'librarian' => 'Manage your account security and assigned campus access. Library circulation tools are not released yet.',
+                'receptionist' => 'Use your secure institution account. Reception and visitor workflows remain a future milestone.',
+                'cashier' => 'Use your secure institution account. Payment and billing tools are not enabled.',
+                'salesperson' => 'Access your verified account and institution membership. Admissions CRM is not released yet.',
+            ];
+        @endphp
         <h2 class="text-base font-bold">{{ $selectedRole ? $selectedRole->label() . ' workspace' : 'My account responsibilities' }}</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">Your assigned roles determine which Edvora modules and records become available. Academic, financial, and personnel modules will be connected after their independent authorization tests are complete.</p>
+        <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{{ $selectedRole ? ($roleGuidance[$selectedRole->value] ?? 'Use the actions your institution has assigned to this role.') : 'Select an authorized role to view its responsibilities. Each role uses the same layout and server-verified access boundaries.' }}</p>
         <div class="mt-5 flex flex-wrap gap-2">
             @foreach($roleCodes as $code)
                 <a href="{{ route('dashboard.role', [$institution, $code]) }}" class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">{{ $code === 'subdirector' ? 'Deputy Director' : ucfirst($code) }}</a>
@@ -59,10 +110,9 @@
         </div>
     </section>
 </div>
-@endsection
 
 @if($canInvite)
-<section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+<section id="invitations" class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h2 class="text-lg font-bold">Invite an institution member</h2>
@@ -124,3 +174,4 @@
     </ul>
 </section>
 @endif
+@endsection

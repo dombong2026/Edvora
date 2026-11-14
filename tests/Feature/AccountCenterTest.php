@@ -35,7 +35,6 @@ class AccountCenterTest extends TestCase
         $this->assertSame('New Display Name', $user->fresh()->name);
         $this->assertDatabaseHas('security_events', ['actor_user_id' => $user->id, 'event_type' => 'profile.updated']);
 
-        \App\Services\SecurityAudit::class; // Verify activity page does not render another actor's event.
         app(\App\Services\SecurityAudit::class)->record('profile.updated', $other);
         $this->get(route('account.index'))->assertOk()->assertSee('New Display Name');
         $this->get(route('account.index'))->assertDontSee($other->email);
