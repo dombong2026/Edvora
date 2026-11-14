@@ -56,8 +56,8 @@ return new class extends Migration
             $table->foreignId('archived_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('archived_at')->nullable();
             $table->timestamps();
-            $table->index(['institution_id', 'status', 'published_at']);
-            $table->index(['institution_id', 'campus_id', 'status']);
+            $table->index(['institution_id', 'status', 'published_at'], 'announcements_published_idx');
+            $table->index(['institution_id', 'campus_id', 'status'], 'announcements_scope_status_idx');
         });
     }
 
