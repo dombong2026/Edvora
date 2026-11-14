@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AcademicYear extends Model
+{
+    protected $fillable = ['institution_id', 'code', 'name', 'starts_on', 'ends_on', 'created_by'];
+
+    protected function casts(): array
+    {
+        return ['starts_on' => 'date', 'ends_on' => 'date'];
+    }
+
+    public function institution(): BelongsTo
+    {
+        return $this->belongsTo(Institution::class);
+    }
+}
