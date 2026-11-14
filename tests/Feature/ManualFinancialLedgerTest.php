@@ -90,7 +90,7 @@ final class ManualFinancialLedgerTest extends TestCase
     {
         $this->actingAs($this->cashier)->get(route('finance.index', [
             'institution' => $this->school, 'campus_id' => $this->campus->id,
-        ]))->assertOk()->assertSee('Billing & manual reconciliation');
+        ]))->assertOk()->assertSee('Billing & manual reconciliation', false);
         $invoiceId = $this->draftInvoice();
         $invoice = DB::table('student_invoices')->find($invoiceId);
         $this->assertSame('INV-2026-001', $invoice->invoice_number);
