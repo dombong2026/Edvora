@@ -29,6 +29,7 @@ final class InternalInboxTest extends TestCase
         parent::setUp();
         $this->seed(RoleSeeder::class);
         $this->school = Institution::create(['name' => 'Private School', 'slug' => 'private-school']);
+        $this->school->refresh(); // Materialize the database's default active state.
         $this->campus = Campus::create([
             'institution_id' => $this->school->id, 'slug' => 'north', 'name' => 'North',
         ]);
@@ -109,6 +110,7 @@ final class InternalInboxTest extends TestCase
         $this->assertDatabaseCount('internal_inbox_messages', 1);
 
         $foreign = Institution::create(['name' => 'Foreign School', 'slug' => 'foreign-school']);
+        $foreign->refresh();
         $inbox->send($foreign, $this->teacher, 'staff_leave_approved', 'leave', 100,
             route('staff.leave.index', $foreign, false));
         $this->assertDatabaseCount('internal_inbox_messages', 1);
