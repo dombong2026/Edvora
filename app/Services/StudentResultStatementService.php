@@ -120,6 +120,9 @@ final class StudentResultStatementService
                 $fields['snapshot_sha256'] = hash('sha256', $snapshot);
             }
             DB::table('student_result_statements')->where('id', $row->id)->update($fields);
+            if ($decision === 'issue') {
+                app(InternalInbox::class)->statementEvent($student, $row->id, 'statement_issued', $row->requested_by);
+            }
             app(SecurityAudit::class)->record(
                 $decision === 'issue' ? 'statement.issued' : 'statement.rejected',
                 $actor, null, $student->institution,
@@ -152,6 +155,7 @@ final class StudentResultStatementService
                 'status' => 'revoked', 'revoked_by' => $actor->id,
                 'revoked_at' => now(), 'revocation_reason' => trim($reason), 'updated_at' => now(),
             ]);
+            app(InternalInbox::class)->statementEvent($student, $row->id, 'statement_revoked', $row->requested_by);
             app(SecurityAudit::class)->record('statement.revoked', $actor, null, $student->institution, [
                 'student_profile_id' => $student->id, 'statement_id' => $row->id,
             ]);

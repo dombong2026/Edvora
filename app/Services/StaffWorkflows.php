@@ -104,6 +104,10 @@ final class StaffWorkflows
                 'status' => $decision === 'approve' ? 'approved' : 'rejected',
                 'reviewed_by' => $actor->id, 'reviewed_at' => now(), 'updated_at' => now(),
             ]);
+            app(InternalInbox::class)->leaveEvent(
+                $institution, $id, $record->staff_user_id,
+                $decision === 'approve' ? 'approved' : 'rejected'
+            );
             app(SecurityAudit::class)->record('staff.leave.reviewed', $actor, null, $institution, [
                 'staff_leave_id' => $id, 'campus_id' => $record->campus_id,
             ]);
