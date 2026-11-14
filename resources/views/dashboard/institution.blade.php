@@ -10,6 +10,13 @@
     <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">Active institution</span>
 </div>
 
+@if(!auth()->user()->mfa_enabled_at && count(array_intersect($roleCodes, ['librarian', 'receptionist', 'salesperson', 'cashier', 'supervisor', 'manager', 'dean', 'subdirector'])) > 0)
+<section class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/40" aria-label="Operational workspace security">
+    <h2 class="text-sm font-bold text-amber-900 dark:text-amber-200">Authenticator verification is required</h2>
+    <p class="mt-2 text-sm leading-6 text-amber-800 dark:text-amber-300">Enable two-factor authentication to use your assigned operational modules.</p>
+    <a class="edvora-secondary mt-3" href="{{ route('mfa.setup') }}">Set up two-factor authentication</a>
+</section>
+@endif
 <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Campuses you can access</p>
@@ -127,10 +134,10 @@
                 'professor' => 'Work with your assigned classes, assessments, attendance and approved schedules.',
                 'student' => 'View your verified student record and your enrolled classes and published academic work.',
                 'parent' => 'Follow only student records and classes linked through a verified guardian relationship.',
-                'librarian' => 'Manage your account security and assigned campus access. Library circulation tools are not released yet.',
-                'receptionist' => 'Use your secure institution account. Reception and visitor workflows remain a future milestone.',
-                'cashier' => 'Use your secure institution account. Payment and billing tools are not enabled.',
-                'salesperson' => 'Access your verified account and institution membership. Admissions CRM is not released yet.',
+                'librarian' => 'Manage your authorized campus catalog, create physical-item records, issue loans and record secure returns.',
+                'receptionist' => 'Manage your assigned campus visitor register, check visitors in and record departures.',
+                'cashier' => 'Prepare and void campus fee proposals. Independent leadership review is available; live payment and billing remain disabled.',
+                'salesperson' => 'Track campus admissions enquiries and update their stages. No messages or automatic enrollment are sent.',
             ];
         @endphp
         <h2 class="text-base font-bold">{{ $selectedRole ? $selectedRole->label() . ' workspace' : 'My account responsibilities' }}</h2>

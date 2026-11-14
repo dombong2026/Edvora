@@ -23,11 +23,11 @@ final class OperationalAccess
     ];
 
     public const ICONS = [
-        'library' => 'academic',
-        'cashier' => 'security',
-        'reception' => 'members',
-        'admissions' => 'students',
-        'operations' => 'classrooms',
+        'library' => 'library',
+        'cashier' => 'cashier',
+        'reception' => 'reception',
+        'admissions' => 'admissions',
+        'operations' => 'operations',
     ];
 
     private const SPECIALISTS = [

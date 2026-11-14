@@ -92,6 +92,25 @@ final class OperationalWorkspaceController extends Controller
     ): RedirectResponse {
         abort_unless(isset(OperationalWorkspaces::TABLES[$module]), 404);
         Gate::authorize('view', $institution);
+        // Normalize human-entered values before checking length and uniqueness.
+        foreach (match ($module) {
+            'library' => ['code', 'title', 'author'],
+            'cashier' => ['name', 'amount'],
+            'reception' => ['visitor_name', 'purpose'],
+            'admissions' => ['contact_name', 'contact_email', 'program'],
+            'operations' => ['title'],
+        } as $key) {
+            if (is_string($request->input($key))) {
+                $value = trim($request->input($key));
+                if ($key === 'code') {
+                    $value = strtoupper($value);
+                }
+                if ($key === 'contact_email') {
+                    $value = mb_strtolower($value);
+                }
+                $request->merge([$key => $value]);
+            }
+        }
         $data = $request->validate(array_merge(['campus_id' => ['required', 'integer']], match ($module) {
             'library' => [
                 'code' => ['required', 'string', 'max:40', 'regex:/^[A-Za-z0-9_-]+$/D',

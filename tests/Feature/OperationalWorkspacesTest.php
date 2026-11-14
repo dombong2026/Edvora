@@ -215,6 +215,54 @@ class OperationalWorkspacesTest extends TestCase
         }
     }
 
+    public function test_shared_operations_role_access_is_limited_to_reviewed_leadership_codes(): void
+    {
+        foreach (['supervisor', 'manager', 'dean', 'subdirector'] as $role) {
+            $account = $this->member($role);
+            $this->actingAs($account)->get($this->page('operations'))->assertOk();
+            $this->get($this->page('cashier'))->assertForbidden();
+            $this->get($this->page('admissions'))->assertForbidden();
+        }
+
+        foreach (['director', 'administrator'] as $role) {
+            $leader = $this->member($role);
+            $this->actingAs($leader);
+            foreach (array_keys(\App\Services\OperationalAccess::TITLES) as $module) {
+                $this->get($this->page($module))->assertOk();
+            }
+        }
+    }
+
+    public function test_library_catalog_codes_normalize_before_unique_validation(): void
+    {
+        $librarian = $this->member('librarian', $this->north);
+        $this->actingAs($librarian);
+        $input = [
+            'campus_id' => $this->north->id, 'code' => 'code-001',
+            'title' => 'Practical Learning', 'stock_total' => 2,
+        ];
+        $this->post(route('workspaces.store', [$this->school, 'library']), $input)->assertRedirect();
+        $this->assertDatabaseHas('library_items', ['code' => 'CODE-001']);
+        $this->post(route('workspaces.store', [$this->school, 'library']), [
+            ...$input, 'code' => ' CoDe-001 ',
+        ])->assertSessionHasErrors('code');
+        $this->assertDatabaseCount('library_items', 1);
+    }
+
+    public function test_fee_creator_cannot_approve_own_proposal_even_with_leadership_role(): void
+    {
+        $director = $this->member('director');
+        $this->actingAs($director)->post(route('workspaces.store', [$this->school, 'cashier']), [
+            'campus_id' => $this->north->id, 'name' => 'Self reviewed draft',
+            'currency' => 'USD', 'amount' => '10.00',
+        ])->assertRedirect();
+        $id = DB::table('fee_proposals')->first()->id;
+        $this->post(route('workspaces.transition', [$this->school, 'cashier', $id]), [
+            'campus_id' => $this->north->id, 'action' => 'review',
+        ])->assertForbidden();
+        $this->assertDatabaseHas('fee_proposals', ['id' => $id, 'status' => 'draft']);
+    }
+
     public function test_unassigned_roles_mfa_and_unauthorized_schools_cannot_read_or_mutate(): void
     {
         $unverified = $this->member('librarian', $this->north, null, false);

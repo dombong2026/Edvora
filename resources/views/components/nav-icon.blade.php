@@ -28,6 +28,21 @@
     @case('classrooms')
         <rect x="3" y="4" width="18" height="15" rx="2"/><path d="M7 23v-4M17 23v-4M7 9h10M7 13h6"/>
         @break
+    @case('library')
+        <path d="M4 4c3-1 5-.5 8 1.5 3-2 5-2.5 8-1.5v15.5c-3-1-5-.5-8 1.5-3-2-5-2.5-8-1.5V4Z"/><path d="M12 5.5V21"/>
+        @break
+    @case('cashier')
+        <rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 15h2M7 15h4"/>
+        @break
+    @case('reception')
+        <rect x="3" y="4" width="18" height="17" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M8 17c.5-2 2-3 4-3s3.5 1 4 3"/>
+        @break
+    @case('admissions')
+        <circle cx="10" cy="8" r="3"/><path d="M3 20v-2c0-3 3-5 7-5 2 0 4 .6 5 2M17 16h6M20 13v6"/>
+        @break
+    @case('operations')
+        <rect x="5" y="4" width="15" height="18" rx="2"/><path d="M9 4V2h7v2M9 10h6m-6 5 2 2 4-4"/>
+        @break
     @case('role')
         <rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M8 17a4 4 0 0 1 8 0"/>
         @break
