@@ -96,18 +96,19 @@ final class ClassroomService
         $teacherCampuses = array_intersect($activeCampuses, $this->campusRoleIds($user, $institution, ['teacher', 'professor']));
         $studentCampuses = array_intersect($activeCampuses, $this->campusRoleIds($user, $institution, ['student']));
         $parentCampuses = array_intersect($activeCampuses, $this->campusRoleIds($user, $institution, ['parent']));
+        $teacherEnabled = $teacherCampuses !== [] && (bool) $user->mfa_enabled_at;
 
         return ClassSection::query()
             ->where('institution_id', $institution->id)
             ->whereIn('campus_id', $activeCampuses)
             ->where(function (Builder $query) use (
                 $officer, $activeCampuses, $teacherCampuses,
-                $studentCampuses, $parentCampuses, $user
+                $studentCampuses, $parentCampuses, $user, $teacherEnabled
             ): void {
                 if ($officer) {
                     $query->orWhereIn('campus_id', $activeCampuses);
                 }
-                if ($teacherCampuses !== [] && $user->mfa_enabled_at) {
+                if ($teacherEnabled) {
                     $query->orWhere(function (Builder $nested) use ($teacherCampuses, $user): void {
                         $nested->where('teacher_user_id', $user->id)
                             ->whereIn('campus_id', $teacherCampuses);
@@ -133,7 +134,7 @@ final class ClassroomService
                                     ->whereNotNull('verified_at')->whereNull('revoked_at')));
                     });
                 }
-                if (! $officer && $teacherCampuses === [] && $studentCampuses === [] && $parentCampuses === []) {
+                if (! $officer && ! $teacherEnabled && $studentCampuses === [] && $parentCampuses === []) {
                     $query->whereRaw('1 = 0');
                 }
             })

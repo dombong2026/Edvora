@@ -21,7 +21,15 @@
                         <p class="text-sm font-semibold">{{ $year->name }}</p>
                         <p class="mt-1 text-xs text-slate-500">{{ $year->code }} · {{ $year->starts_on->format('d M Y') }} — {{ $year->ends_on->format('d M Y') }}</p>
                     </div>
-                    <span class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:text-slate-300">{{ ucfirst($year->status) }}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:text-slate-300">{{ ucfirst($year->status) }}</span>
+                        @if($canManage && $year->status === 'draft')
+                            <form method="POST" action="{{ route('academic.years.activate', [$institution, $year]) }}">
+                                @csrf
+                                <button type="submit" class="rounded-lg border border-blue-200 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950">Activate</button>
+                            </form>
+                        @endif
+                    </div>
                 </li>
             @empty
                 <li class="py-6 text-sm text-slate-500">No academic years have been created for this institution.</li>

@@ -6,6 +6,7 @@ use App\Http\Controllers\MfaController;
 use App\Http\Controllers\InstitutionInvitationController;
 use App\Http\Controllers\AcademicCatalogController;
 use App\Http\Controllers\StudentRegistryController;
+use App\Http\Controllers\ClassroomController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -54,6 +55,20 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('student')->middleware('throttle:10,1')->name('students.guardians.verify');
     Route::delete('/dashboard/institutions/{institution:slug}/students/{student}/guardians/{link}', [StudentRegistryController::class, 'revokeGuardian'])
         ->whereNumber('student')->whereNumber('link')->middleware('throttle:10,1')->name('students.guardians.revoke');
+    Route::post('/dashboard/institutions/{institution:slug}/academic/years/{year}/activate', [AcademicCatalogController::class, 'activateYear'])
+        ->whereNumber('year')->middleware('throttle:10,1')->name('academic.years.activate');
+    Route::get('/dashboard/institutions/{institution:slug}/classes', [ClassroomController::class, 'index'])
+        ->name('classrooms.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes', [ClassroomController::class, 'store'])
+        ->middleware('throttle:15,1')->name('classrooms.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}', [ClassroomController::class, 'show'])
+        ->whereNumber('section')->name('classrooms.show');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/teacher', [ClassroomController::class, 'assignTeacher'])
+        ->whereNumber('section')->middleware('throttle:10,1')->name('classrooms.teacher.assign');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/activate', [ClassroomController::class, 'activate'])
+        ->whereNumber('section')->middleware('throttle:10,1')->name('classrooms.activate');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/students', [ClassroomController::class, 'enroll'])
+        ->whereNumber('section')->middleware('throttle:20,1')->name('classrooms.students.enroll');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])

@@ -60,6 +60,7 @@
                     @if(isset($institution, $roleCodes))
                         <a href="{{ route('academic.index', $institution) }}" class="mt-2 block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">Academic catalog</a>
                         <a href="{{ route('students.index', $institution) }}" class="mt-2 block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">Students & guardians</a>
+                        <a href="{{ route('classrooms.index', $institution) }}" class="mt-2 block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">My classrooms</a>
                         <p class="px-3 pb-2 pt-5 text-xs font-bold uppercase tracking-widest text-slate-400">My roles</p>
                         @foreach($roleCodes as $code)
                             <a href="{{ route('dashboard.role', [$institution, $code]) }}" class="block rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">{{ ucfirst($code === 'subdirector' ? 'Deputy Director' : $code) }}</a>
