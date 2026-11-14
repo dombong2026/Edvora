@@ -118,7 +118,8 @@ final class TimetableAttendanceTest extends TestCase
         if ($user) {
             app(StudentRegistryService::class)->linkStudentAccount($officer, $profile, $user);
         }
-        return $profile;
+        // Reload database-default status before testing the production enrollment guard.
+        return $profile->fresh();
     }
 
     private function enroll(ClassSection $class, User $officer, StudentProfile $student): ClassEnrollment
