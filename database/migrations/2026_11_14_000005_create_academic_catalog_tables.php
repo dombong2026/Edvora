@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
             $table->timestamps();
             $table->unique(['institution_id', 'code']);
+            $table->unique(['id', 'institution_id']);
         });
 
         Schema::create('academic_subjects', function (Blueprint $table): void {
@@ -31,6 +32,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
             $table->timestamps();
             $table->unique(['institution_id', 'code']);
+            $table->unique(['id', 'institution_id']);
         });
     }
 
