@@ -20,6 +20,8 @@ use App\Http\Controllers\InstitutionAnnouncementController;
 use App\Http\Controllers\AcademicReportController;
 use App\Http\Controllers\StudentLifecycleController;
 use App\Http\Controllers\StudentTranscriptController;
+use App\Http\Controllers\StaffLeaveController;
+use App\Http\Controllers\PayrollPlanningController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -148,6 +150,21 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('item')->middleware('throttle:30,1')->name('workspaces.loans.issue');
     Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/loans/{loan}/return', [OperationalWorkspaceController::class, 'returnLoan'])
         ->whereNumber('loan')->middleware('throttle:30,1')->name('workspaces.loans.return');
+    Route::get('/dashboard/institutions/{institution:slug}/staff/leave', [StaffLeaveController::class, 'index'])
+        ->name('staff.leave.index');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/leave', [StaffLeaveController::class, 'store'])
+        ->middleware('throttle:10,1')->name('staff.leave.store');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/leave/{leave}/review', [StaffLeaveController::class, 'review'])
+        ->whereNumber('leave')->middleware('throttle:10,1')->name('staff.leave.review');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/leave/{leave}/cancel', [StaffLeaveController::class, 'cancel'])
+        ->whereNumber('leave')->middleware('throttle:10,1')->name('staff.leave.cancel');
+    Route::get('/dashboard/institutions/{institution:slug}/staff/payroll', [PayrollPlanningController::class, 'index'])
+        ->name('staff.payroll.index');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/payroll', [PayrollPlanningController::class, 'store'])
+        ->middleware('throttle:10,1')->name('staff.payroll.store');
+    Route::post('/dashboard/institutions/{institution:slug}/staff/payroll/{plan}/review', [PayrollPlanningController::class, 'review'])
+        ->whereNumber('plan')->middleware('throttle:10,1')->name('staff.payroll.review');
+
     Route::get('/dashboard/institutions/{institution:slug}/reports', [AcademicReportController::class, 'index'])
         ->middleware('throttle:60,1')->name('reports.index');
     Route::get('/dashboard/institutions/{institution:slug}/reports/export', [AcademicReportController::class, 'export'])
