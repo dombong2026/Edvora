@@ -22,6 +22,7 @@ use App\Http\Controllers\StudentLifecycleController;
 use App\Http\Controllers\StudentTranscriptController;
 use App\Http\Controllers\StaffLeaveController;
 use App\Http\Controllers\PayrollPlanningController;
+use App\Http\Controllers\ManualFinancialController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -150,6 +151,17 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('item')->middleware('throttle:30,1')->name('workspaces.loans.issue');
     Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/loans/{loan}/return', [OperationalWorkspaceController::class, 'returnLoan'])
         ->whereNumber('loan')->middleware('throttle:30,1')->name('workspaces.loans.return');
+    Route::get('/dashboard/institutions/{institution:slug}/finance', [ManualFinancialController::class, 'index'])
+        ->name('finance.index');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/invoices', [ManualFinancialController::class, 'storeInvoice'])
+        ->middleware('throttle:15,1')->name('finance.invoices.store');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/invoices/{invoice}/review', [ManualFinancialController::class, 'reviewInvoice'])
+        ->whereNumber('invoice')->middleware('throttle:15,1')->name('finance.invoices.review');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/invoices/{invoice}/matches', [ManualFinancialController::class, 'storeMatch'])
+        ->whereNumber('invoice')->middleware('throttle:15,1')->name('finance.matches.store');
+    Route::post('/dashboard/institutions/{institution:slug}/finance/matches/{match}/review', [ManualFinancialController::class, 'reviewMatch'])
+        ->whereNumber('match')->middleware('throttle:15,1')->name('finance.matches.review');
+
     Route::get('/dashboard/institutions/{institution:slug}/staff/leave', [StaffLeaveController::class, 'index'])
         ->name('staff.leave.index');
     Route::post('/dashboard/institutions/{institution:slug}/staff/leave', [StaffLeaveController::class, 'store'])
