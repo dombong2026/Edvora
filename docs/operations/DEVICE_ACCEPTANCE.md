@@ -31,3 +31,14 @@ Additional student/classroom scenarios to execute on every supported device:
 - Unassigned teacher: class roster and student listing denied.
 - Enrollment capacity rejection, duplicate enrollment, invalid campus/year.
 - Portrait/landscape, narrow sidebar, 200% zoom, accessible validation errors.
+
+
+Further academic module physical-device acceptance scenarios:
+- Officer creates a weekly timetable; overlapping teacher or room times are rejected
+- Teacher records draft attendance on phone; incomplete register cannot be submitted
+- Independent officer approves attendance; parent sees only linked child's approved mark
+- Assigned teacher records zero, decimal, and maximum assessment scores
+- Publishing scores requires separate verified officer approval
+- Student/guardian never sees classmates' attendance or score records
+- Revoked parent permissions immediately deny previously published scores
+- School timezone date boundary and time selector usability are manually checked

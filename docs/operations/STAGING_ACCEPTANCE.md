@@ -28,6 +28,11 @@ Separate authorized staging installation acceptance must verify:
 - Authorized invitation issuance, acceptance and expired/replayed link denial.
 - Campus and institutional boundaries for every supported role.
 - Theme, dashboard, password reset sandbox and mobile/browser behavior.
+- Synthetic recurring timetable and room/teacher conflict checks; verify school timezone.
+- Attendance drafts, class roster completeness, separate officer approval and lock-after-approval.
+- Assessment scoring (including zero and decimal points), max-score validation,
+  independent publication and lock-after-publication.
+- Student/guardian visibility denial before publication and after guardian revocation.
 - Storage permissions, HTTPS, Nginx/PHP-FPM, backup/restore and audit evidence.
 
 The independent operator must record hostname, source SHA, vhost fingerprint,

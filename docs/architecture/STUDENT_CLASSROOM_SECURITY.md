@@ -44,8 +44,14 @@ teaching role, plus MFA enrollment. Parents and students can see only their
 own enrolled section details and cannot view other classmates or rosters.
 Institution-wide authorized leadership may review its institution's classes.
 
-Not implemented: timetables, attendance, scores, grades, class promotion,
-student withdrawal and reenrollment after transfer, concurrent co-teachers,
+Implemented as limited foundations: weekly timetable slots, class attendance
+registers, independently approved student attendance, and independently
+published assessment scores. These workflows enforce class/campus/tenant
+relationships and restrict families to their own student records.
+
+Not implemented: automatic schedule rescheduling, attendance correction
+workflows, consolidated grades/transcripts, class promotion, student
+withdrawal and reenrollment after transfer, concurrent co-teachers,
 formal academic-year closeout, student evidence retention, or custody approval.
 
 Security review must test concurrency, tenant ownership, row-level visibility

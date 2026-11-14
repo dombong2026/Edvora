@@ -11,6 +11,9 @@ Implemented source code:
 - [x] Initial academic-year and subject catalog with institution authorization tests.
 - [x] Student profile creation, student-user linking, guardian verification/revocation and scope tests.
 - [x] Initial sections, teacher assignment, class activation and capacity-enforced enrollments.
+- [x] Timezone-aware class timetable; room/teacher overlap checks on initial creation.
+- [x] Teacher-only attendance drafts, independent approval, family-specific published reads.
+- [x] Assessment drafts and decimal scoring, independent publication, family-specific published results.
 
 Outstanding independent acceptance:
 - [ ] Current head CI all green for PHP 8.3/8.4/8.5, MySQL 8, frontend.
@@ -21,10 +24,14 @@ Outstanding independent acceptance:
 - [ ] Physical iPhone/Android/tablet and Safari/Chrome/Firefox testing.
 - [ ] Verify real guardian authority, custody restrictions, retention and revocation processes.
 - [ ] Independent campus cross-boundary and classroom roster read-denial review.
+- [ ] Physical school attendance and score-review workflows, exception and correction handling.
+- [ ] Conflicting teacher reassignment, concurrent timetable inserts, and institutional timezone review.
+- [ ] School retention and privacy review for attendance, assessment scoring and audit metadata.
 - [ ] School privacy and regional legal review.
 - [ ] Owner signoff and a separate approved release plan.
 
 Do not deploy to production, send live notices, import real school records,
-or enable tuition payments. Student and classroom modules remain limited foundations: full teaching,
-student admissions, grading, finance, HR, transport and library operations
-require separately accepted milestones. Real student data is still prohibited.
+or enable tuition payments. The attendance and grading features are narrowly scoped, not a complete SIS.
+Full admissions, teaching content, examinations, grade corrections/transcripts,
+finance, HR, transport and library operations require separately accepted
+milestones. Real school/child data is still prohibited.
