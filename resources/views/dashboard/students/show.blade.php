@@ -6,6 +6,12 @@
     <h1 class="mt-3 text-3xl font-bold tracking-tight">{{ $profile->display_name }}</h1>
     <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Student number: <span class="font-mono">{{ $profile->student_number }}</span> · Campus: {{ $profile->campus->name }}</p>
     <a class="mt-4 inline-flex text-sm font-semibold text-blue-600 hover:underline" href="{{ route('students.index', $institution) }}">Back to student workspace</a>
+    <div class="mt-4 flex flex-wrap gap-3">
+        <a class="edvora-secondary" href="{{ route('students.transcript.show', [$institution, $profile->id]) }}">Reviewed academic results</a>
+        @if($canManage)
+            <a class="edvora-primary" href="{{ route('students.lifecycle.index', [$institution, $profile->id]) }}">Student promotion / transfer / withdrawal</a>
+        @endif
+    </div>
 </header>
 <section class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
     <h2 class="text-lg font-bold">Student record overview</h2>
@@ -15,7 +21,7 @@
         <div><dt class="text-xs text-slate-500">Status</dt><dd class="mt-1 text-sm font-semibold">{{ ucfirst($profile->status) }}</dd></div>
         <div><dt class="text-xs text-slate-500">Account connection</dt><dd class="mt-1 text-sm font-semibold">{{ $profile->user_id ? 'Verified school account linked' : 'Not yet linked' }}</dd></div>
     </dl>
-    <p class="mt-6 text-xs leading-6 text-slate-500 dark:text-slate-400">Grades, attendance, private contact details, health information, financial records and full enrollment workflows are not part of this foundation module.</p>
+    <p class="mt-6 text-xs leading-6 text-slate-500 dark:text-slate-400">Independently published academic results are available through the reviewed results workspace. Official transcripts and full end-to-end transfer reconciliation remain future controlled milestones.</p>
 </section>
 @if($canManage)
 <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">

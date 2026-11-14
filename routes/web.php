@@ -18,6 +18,8 @@ use App\Http\Controllers\AcademicCorrectionController;
 use App\Http\Controllers\InstitutionHelpdeskController;
 use App\Http\Controllers\InstitutionAnnouncementController;
 use App\Http\Controllers\AcademicReportController;
+use App\Http\Controllers\StudentLifecycleController;
+use App\Http\Controllers\StudentTranscriptController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -69,6 +71,16 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('throttle:20,1')->name('students.store');
     Route::get('/dashboard/institutions/{institution:slug}/students/{student}', [StudentRegistryController::class, 'show'])
         ->whereNumber('student')->name('students.show');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/lifecycle', [StudentLifecycleController::class, 'index'])
+        ->whereNumber('student')->name('students.lifecycle.index');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/lifecycle', [StudentLifecycleController::class, 'store'])
+        ->whereNumber('student')->middleware('throttle:10,1')->name('students.lifecycle.store');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/lifecycle/{lifecycle}/review', [StudentLifecycleController::class, 'review'])
+        ->whereNumber('student')->whereNumber('lifecycle')->middleware('throttle:10,1')->name('students.lifecycle.review');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/results', [StudentTranscriptController::class, 'show'])
+        ->whereNumber('student')->name('students.transcript.show');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/results/export', [StudentTranscriptController::class, 'export'])
+        ->whereNumber('student')->middleware('throttle:15,1')->name('students.transcript.export');
     Route::post('/dashboard/institutions/{institution:slug}/students/{student}/account', [StudentRegistryController::class, 'linkAccount'])
         ->whereNumber('student')->middleware('throttle:10,1')->name('students.account.link');
     Route::post('/dashboard/institutions/{institution:slug}/students/{student}/guardians', [StudentRegistryController::class, 'verifyGuardian'])
