@@ -58,7 +58,10 @@
             <h2 class="text-lg font-bold">Weekly class timetable</h2>
             <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Recurring schedule in the institution's local time. Slots are only visible to accounts authorized for this class.</p>
         </div>
+        <div class="flex flex-wrap items-center gap-2">
         <a href="{{ route('attendance.index', [$institution, $section]) }}" class="inline-flex rounded-xl border border-blue-200 px-4 py-2.5 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950">Attendance registers</a>
+        <a href="{{ route('assessments.index', [$institution, $section]) }}" class="inline-flex rounded-xl border border-blue-200 px-4 py-2.5 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950">Assessments & scores</a>
+        </div>
     </div>
     <ul class="mt-5 divide-y divide-slate-200 dark:divide-slate-800">
         @forelse($timetableSlots as $slot)

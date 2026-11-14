@@ -9,6 +9,7 @@ use App\Http\Controllers\StudentRegistryController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ClassAttendanceController;
 use App\Http\Controllers\ClassTimetableController;
+use App\Http\Controllers\ClassAssessmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -85,6 +86,18 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->whereNumber('session')->middleware('throttle:15,1')->name('attendance.submit');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/approve', [ClassAttendanceController::class, 'approve'])
         ->whereNumber('section')->whereNumber('session')->middleware('throttle:10,1')->name('attendance.approve');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/assessments', [ClassAssessmentController::class, 'index'])
+        ->whereNumber('section')->name('assessments.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments', [ClassAssessmentController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('assessments.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}', [ClassAssessmentController::class, 'show'])
+        ->whereNumber('section')->whereNumber('assessment')->name('assessments.show');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/results', [ClassAssessmentController::class, 'record'])
+        ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:120,1')->name('assessments.record');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/submit', [ClassAssessmentController::class, 'submit'])
+        ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:15,1')->name('assessments.submit');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments/{assessment}/publish', [ClassAssessmentController::class, 'publish'])
+        ->whereNumber('section')->whereNumber('assessment')->middleware('throttle:10,1')->name('assessments.publish');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])

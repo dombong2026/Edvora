@@ -38,6 +38,11 @@ final class ClassSection extends Model
         return $this->belongsTo(User::class, 'teacher_user_id');
     }
 
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(ClassAssessment::class);
+    }
+
     public function timetableSlots(): HasMany
     {
         return $this->hasMany(ClassTimetableSlot::class);
