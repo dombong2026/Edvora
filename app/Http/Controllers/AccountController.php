@@ -38,12 +38,14 @@ final class AccountController extends Controller
 
     public function updateProfile(Request $request): RedirectResponse
     {
+        // Trim before validating so whitespace cannot satisfy the length rule.
+        $request->merge(['name' => trim((string) $request->input('name', ''))]);
         $data = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:255'],
         ]);
 
         $user = $request->user();
-        $name = trim($data['name']);
+        $name = $data['name'];
 
         if ($user->name !== $name) {
             $user->forceFill(['name' => $name])->save();

@@ -104,6 +104,10 @@ class DashboardController extends Controller
             $visibleStudents = $visibleStudents->where('campus_id', $selectedCampus->id);
         }
 
+        $canInviteDirector = $request->user()->roleAssignments()
+            ->where('institution_id', $institution->id)->whereNull('campus_id')
+            ->whereHas('role', fn ($q) => $q->where('code', 'director'))->exists();
+
         return view('dashboard.institution', [
             'visibleClassCount' => $visibleClasses->count(),
             'visibleStudentCount' => $visibleStudents->count(),
@@ -114,7 +118,8 @@ class DashboardController extends Controller
             'selectedRole' => $selectedRole,
             'roleCodes' => $access->roleCodes($request->user(), $institution),
             'canInvite' => $canInvite,
-            'inviteRoles' => array_filter(AccountRole::cases(), fn (AccountRole $role) => $role !== AccountRole::Admin),
+            'inviteRoles' => array_filter(AccountRole::cases(), fn (AccountRole $role) =>
+                $role !== AccountRole::Admin && ($role !== AccountRole::Director || $canInviteDirector)),
             'pendingInvitations' => $canInvite
                 ? InstitutionInvitation::query()->where('institution_id', $institution->id)
                     ->whereNull('accepted_at')->whereNull('revoked_at')

@@ -18,7 +18,7 @@
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Active institution members</p>
-        @if(in_array('administrator', $roleCodes, true) || in_array('director', $roleCodes, true))
+        @if($canInvite || $canManageAcademics)
             <p class="mt-4 text-4xl font-bold tracking-tight">{{ $memberCount }}</p>
         @else
             <p class="mt-4 text-xl font-bold">Restricted</p>
