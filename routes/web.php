@@ -23,6 +23,7 @@ use App\Http\Controllers\StudentTranscriptController;
 use App\Http\Controllers\StaffLeaveController;
 use App\Http\Controllers\PayrollPlanningController;
 use App\Http\Controllers\ManualFinancialController;
+use App\Http\Controllers\ExamScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -118,6 +119,14 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->whereNumber('session')->middleware('throttle:15,1')->name('attendance.submit');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/approve', [ClassAttendanceController::class, 'approve'])
         ->whereNumber('section')->whereNumber('session')->middleware('throttle:10,1')->name('attendance.approve');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/exams', [ExamScheduleController::class, 'index'])
+        ->whereNumber('section')->name('exams.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/exams', [ExamScheduleController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('exams.store');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/exams/{exam}/submit', [ExamScheduleController::class, 'submit'])
+        ->whereNumber('section')->whereNumber('exam')->middleware('throttle:15,1')->name('exams.submit');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/exams/{exam}/review', [ExamScheduleController::class, 'review'])
+        ->whereNumber('section')->whereNumber('exam')->middleware('throttle:15,1')->name('exams.review');
     Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/assessments', [ClassAssessmentController::class, 'index'])
         ->whereNumber('section')->name('assessments.index');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/assessments', [ClassAssessmentController::class, 'store'])
