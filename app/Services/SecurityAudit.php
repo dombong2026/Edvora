@@ -21,6 +21,8 @@ final class SecurityAudit
             'profile.updated', 'password.updated',
             'student.created', 'student.account_linked', 'guardian.verified', 'guardian.revoked',
             'student.lifecycle.requested', 'student.lifecycle.approved', 'student.lifecycle.rejected',
+            'staff.leave.requested', 'staff.leave.reviewed', 'staff.leave.cancelled',
+            'payroll.plan.drafted', 'payroll.plan.reviewed',
             'academics.year.activated', 'class.section.created', 'class.section.activated',
             'class.teacher.assigned', 'class.student.enrolled',
             'class.timetable.created',
@@ -44,7 +46,7 @@ final class SecurityAudit
         }
 
         foreach (array_keys($metadata) as $key) {
-            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship', 'academic_year_id', 'class_section_id', 'attendance_session_id', 'assessment_id', 'academic_correction_id', 'timetable_change_id', 'operational_record_id', 'operational_module', 'help_ticket_id', 'announcement_id', 'lifecycle_request_id'], true)) {
+            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship', 'academic_year_id', 'class_section_id', 'attendance_session_id', 'assessment_id', 'academic_correction_id', 'timetable_change_id', 'operational_record_id', 'operational_module', 'help_ticket_id', 'announcement_id', 'lifecycle_request_id', 'staff_leave_id', 'payroll_plan_id'], true)) {
                 throw new \InvalidArgumentException('Unsupported audit metadata.');
             }
         }
