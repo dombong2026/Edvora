@@ -10,6 +10,7 @@ use App\Models\Institution;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\ClassroomService;
+use App\Services\ClassTimetableService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -85,6 +86,8 @@ final class ClassroomController extends Controller
         $canViewRoster = $classrooms->canViewRoster($request->user(), $record);
 
         return view('dashboard.classrooms.show', [
+            'timetableSlots' => $record->timetableSlots()->orderBy('weekday')->orderBy('starts_at')->limit(80)->get(),
+            'canSchedule' => app(ClassTimetableService::class)->canCreate($request->user(), $record),
             'institution' => $institution,
             'section' => $record,
             'canManage' => $canManage,

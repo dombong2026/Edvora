@@ -7,6 +7,8 @@ use App\Http\Controllers\InstitutionInvitationController;
 use App\Http\Controllers\AcademicCatalogController;
 use App\Http\Controllers\StudentRegistryController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\ClassAttendanceController;
+use App\Http\Controllers\ClassTimetableController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
@@ -69,6 +71,20 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->middleware('throttle:10,1')->name('classrooms.activate');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/students', [ClassroomController::class, 'enroll'])
         ->whereNumber('section')->middleware('throttle:20,1')->name('classrooms.students.enroll');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable', [ClassTimetableController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('timetable.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/attendance', [ClassAttendanceController::class, 'index'])
+        ->whereNumber('section')->name('attendance.index');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance', [ClassAttendanceController::class, 'store'])
+        ->whereNumber('section')->middleware('throttle:15,1')->name('attendance.store');
+    Route::get('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}', [ClassAttendanceController::class, 'show'])
+        ->whereNumber('section')->whereNumber('session')->name('attendance.show');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/marks', [ClassAttendanceController::class, 'mark'])
+        ->whereNumber('section')->whereNumber('session')->middleware('throttle:120,1')->name('attendance.mark');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/submit', [ClassAttendanceController::class, 'submit'])
+        ->whereNumber('section')->whereNumber('session')->middleware('throttle:15,1')->name('attendance.submit');
+    Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/attendance/{session}/approve', [ClassAttendanceController::class, 'approve'])
+        ->whereNumber('section')->whereNumber('session')->middleware('throttle:10,1')->name('attendance.approve');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])
