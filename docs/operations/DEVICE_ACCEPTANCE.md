@@ -21,3 +21,13 @@ For each scenario collect synthetic-account evidence: device, OS/browser
 version, build SHA, date/time, tester, sanitized screenshot, expected/actual,
 defect reference and signoff. Never capture real student records, passwords,
 MFA seeds or backup recovery codes. No pass is inferred without physical QA.
+
+
+Additional student/classroom scenarios to execute on every supported device:
+- Institution officer: create synthetic student; link a verified student account.
+- School officer: verify and revoke a synthetic guardian relationship.
+- Parent/student: only explicitly linked student and enrolled class visible.
+- Assigned teacher: authenticator setup and assigned class roster only.
+- Unassigned teacher: class roster and student listing denied.
+- Enrollment capacity rejection, duplicate enrollment, invalid campus/year.
+- Portrait/landscape, narrow sidebar, 200% zoom, accessible validation errors.

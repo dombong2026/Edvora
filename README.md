@@ -32,16 +32,19 @@ Do not execute installation commands against production school records without a
 - Separate platform administrator designation, institution memberships and role assignments.
 - Institution/campus boundaries, composite foreign keys, policies, audited privileged grants, and a secure role-assignment service.
 - Secure email-bound institution invitations with one-time acceptance, revocation and audit events.
-- Institution-scoped academic years and subject catalog with leadership-only creation and validation.
+- Institution-scoped academic years, active-year approval and subject catalog with leadership-only changes.
+- Student registry: scoped records, verified student identity links and revocable, independently authorized parent/guardian access.
+- Class sections: draft-to-active workflow, teacher assignments, capacity-aware enrollments and roster-level privacy.
 - Guarded aaPanel staging preflight, HTTPS checks and AGE-encrypted QA backup/restore rehearsal scripts.
 - Responsive premium dashboard, with persistent light, dark and system appearance.
 - Empty states and real authorized dashboard data; no fake records.
 
-**Not yet shipped:** full admissions, learning, grades, finance, HR, libraries, account lockout recovery, approved mail delivery, and production integrations. This is not yet a complete school ERP.
+**Not yet shipped:** complete admissions, timetables, attendance, assignment grading, financial collection, HR/payroll, library operations, formal custody evidence review, approved live mail delivery, privileged account recovery, and production integrations. This is not yet a complete school ERP.
 
 ## Documentation
 
 - [Architecture](docs/architecture/README.md)
+- [Student and classroom authorization](docs/architecture/STUDENT_CLASSROOM_SECURITY.md)
 - [Installation and QA](docs/installation/README.md)
 - [Security](docs/security/README.md)
 - [API status](docs/api/README.md)

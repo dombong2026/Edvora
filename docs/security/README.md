@@ -21,7 +21,8 @@ Do not import real school records into CI or disposable QA environments.
 
 - Independent administrator MFA and recovery review, verified locked-out
   identity-reset procedure, and review of sensitive data access audit coverage.
-- Teacher/student/guardian ownership and custody restrictions.
+- Independent real-world custody/guardian identity and teacher appointment evidence.
+- Reviewer signoff for parent link validation and student transfer/withdrawal workflows.
 - Security reviews for exports, jobs, media, webhooks and every new module.
 - Local privacy and education compliance review, pen test, retention policy.
 - Backup encryption, restore rehearsals, key rotation and alerting.

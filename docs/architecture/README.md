@@ -46,18 +46,21 @@ The theme persists client-side and follows the OS when set to system.
 
 ## Planned domain modules
 
-Admissions, students, guardians, academics, timetable, attendance,
+Limited student, guardian, academic-year, subject and classroom foundations
+are implemented. Full admissions, schedules, attendance, assignments,
 assessments, fees, payroll, library, transport, facilities, welfare,
-communication, documents, CMS, reporting and integrations are NOT included in
-the foundation. Each future module requires its own acceptance tests.
+communication, documents, CMS, reporting and integrations remain later modules.
+Each domain requires independent privacy and permission acceptance.
 
 
 ## Initial academic planning slice
 
 AcademicYear and AcademicSubject are scoped to institution_id with unique
 institution-level codes, auditable creator IDs and server-side validation.
-Academic years are draft-only on creation; no publishing workflow exists yet.
+Academic years start as drafts and can be activated explicitly by an
+authorized, MFA-enabled institutional officer.
 Only authenticated institution leadership with MFA may create records.
 All authenticated institution members can view the limited catalog, but
-cross-institution reads are denied. Course sections, teacher assignments,
-student enrollment, grading, reports and scheduling are future milestones.
+cross-institution reads are denied. Initial class sections, teacher assignment,
+capacity-aware enrollment, and parent/teacher class view policies are now
+implemented; full timetables, grading and reports remain future milestones.

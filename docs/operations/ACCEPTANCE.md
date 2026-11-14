@@ -9,6 +9,8 @@ Implemented source code:
 - [x] Read-only staging preflight and encrypted QA backup/restore scripts.
 - [x] Automated PHP/MySQL/frontend test workflows.
 - [x] Initial academic-year and subject catalog with institution authorization tests.
+- [x] Student profile creation, student-user linking, guardian verification/revocation and scope tests.
+- [x] Initial sections, teacher assignment, class activation and capacity-enforced enrollments.
 
 Outstanding independent acceptance:
 - [ ] Current head CI all green for PHP 8.3/8.4/8.5, MySQL 8, frontend.
@@ -17,9 +19,12 @@ Outstanding independent acceptance:
 - [ ] Isolated aaPanel/Nginx/PHP-FPM staging installation.
 - [ ] Database/rollback/backup/restore and retention checks.
 - [ ] Physical iPhone/Android/tablet and Safari/Chrome/Firefox testing.
+- [ ] Verify real guardian authority, custody restrictions, retention and revocation processes.
+- [ ] Independent campus cross-boundary and classroom roster read-denial review.
 - [ ] School privacy and regional legal review.
 - [ ] Owner signoff and a separate approved release plan.
 
 Do not deploy to production, send live notices, import real school records,
-or enable tuition payments. Complete teaching, classes, student records, grades, finance, HR, and
-library operational modules remain later milestones and are not complete.
+or enable tuition payments. Student and classroom modules remain limited foundations: full teaching,
+student admissions, grading, finance, HR, transport and library operations
+require separately accepted milestones. Real student data is still prohibited.
