@@ -58,4 +58,18 @@ class AcademicCatalogController extends Controller
 
         return redirect()->route('academic.index', $institution)->with('status', 'Academic subject created.');
     }
+    public function activateYear(
+        Request $request,
+        Institution $institution,
+        int $year,
+        AcademicCatalogService $catalog
+    ): RedirectResponse {
+        Gate::authorize('view', $institution);
+        abort_unless($catalog->canManage($request->user(), $institution), 403);
+        $record = AcademicYear::query()->where('institution_id', $institution->id)->findOrFail($year);
+        $catalog->activateYear($request->user(), $institution, $record);
+
+        return redirect()->route('academic.index', $institution)
+            ->with('status', 'Academic year activated for authorized class planning.');
+    }
 }

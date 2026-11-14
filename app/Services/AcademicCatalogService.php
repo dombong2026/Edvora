@@ -52,4 +52,24 @@ final class AcademicCatalogService
             'created_by' => $actor->id,
         ]);
     }
+    public function activateYear(User $actor, Institution $institution, AcademicYear $year): void
+    {
+        if (! $this->canManage($actor, $institution)
+            || (int) $year->institution_id !== (int) $institution->id) {
+            throw new AuthorizationException('Academic year activation is restricted to authorized leadership.');
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($actor, $institution, $year): void {
+            $locked = AcademicYear::query()->lockForUpdate()->findOrFail($year->id);
+            if ($locked->status !== 'draft') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'year' => 'Only a draft academic year can be activated.',
+                ]);
+            }
+            $locked->forceFill(['status' => 'active'])->save();
+            app(SecurityAudit::class)->record('academics.year.activated', $actor, null, $institution, [
+                'academic_year_id' => $year->id,
+            ]);
+        });
+    }
 }
