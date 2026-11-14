@@ -12,6 +12,7 @@ use App\Services\AcademicCatalogService;
 use App\Services\ClassroomService;
 use App\Services\StudentRegistryService;
 use App\Services\InstitutionAccess;
+use App\Services\OperationalAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -108,7 +109,27 @@ class DashboardController extends Controller
             ->where('institution_id', $institution->id)->whereNull('campus_id')
             ->whereHas('role', fn ($q) => $q->where('code', 'director'))->exists();
 
+        $availableModules = app(OperationalAccess::class)->modules($request->user(), $institution);
+        if ($selectedCampus) {
+            $availableModules = array_values(array_filter($availableModules, fn (string $module): bool =>
+                app(OperationalAccess::class)->canOperate($request->user(), $institution, $selectedCampus, $module)));
+        }
+        if ($selectedRole && ! in_array($selectedRole->value, ['director', 'administrator'], true)) {
+            $roleModule = match ($selectedRole) {
+                AccountRole::Librarian => 'library',
+                AccountRole::Cashier => 'cashier',
+                AccountRole::Receptionist => 'reception',
+                AccountRole::Salesperson => 'admissions',
+                AccountRole::Supervisor, AccountRole::Manager,
+                AccountRole::Dean, AccountRole::Subdirector => 'operations',
+                default => null,
+            };
+            $availableModules = array_values(array_filter($availableModules, fn (string $module): bool =>
+                $module === $roleModule));
+        }
+
         return view('dashboard.institution', [
+            'availableModules' => $availableModules,
             'visibleClassCount' => $visibleClasses->count(),
             'visibleStudentCount' => $visibleStudents->count(),
             'canManageAcademics' => app(AcademicCatalogService::class)->canManage($request->user(), $institution),

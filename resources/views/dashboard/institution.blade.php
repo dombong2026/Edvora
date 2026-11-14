@@ -77,6 +77,26 @@
     </div>
 </section>
 
+@if($availableModules !== [])
+<section class="mt-6" aria-labelledby="operational-workspaces-heading">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h2 id="operational-workspaces-heading" class="text-xl font-bold">Operational workspaces</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Available actions depend on verified account roles and campus scope.</p>
+        </div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        @foreach($availableModules as $workspace)
+            <a href="{{ route('workspaces.index', [$institution, $workspace] + ($selectedCampus ? ['campus_id' => $selectedCampus->id] : [])) }}" class="edvora-surface group block p-5 transition hover:border-blue-300 hover:shadow-md dark:hover:border-blue-800">
+                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300"><x-nav-icon :name="\App\Services\OperationalAccess::ICONS[$workspace]" class="h-6 w-6" /></span>
+                <p class="mt-4 text-base font-bold">{{ \App\Services\OperationalAccess::TITLES[$workspace] }}</p>
+                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Open authorized campus workspace <span class="text-blue-600 dark:text-blue-400" aria-hidden="true">→</span></p>
+            </a>
+        @endforeach
+    </div>
+</section>
+@endif
+
 <div class="mt-6 grid gap-5 xl:grid-cols-2">
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="flex items-center justify-between">

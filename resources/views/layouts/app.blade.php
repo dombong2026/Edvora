@@ -79,6 +79,7 @@
             $navStudent = $navAcademic || count(array_intersect($navRoles, ['student', 'parent'])) > 0;
             $navClasses = $navAcademic || count(array_intersect($navRoles, ['teacher', 'professor', 'student', 'parent'])) > 0;
             $navMembers = $navInstitution && app(\App\Services\RoleAssignmentService::class)->canManage(auth()->user(), $navInstitution);
+            $navOperationalModules = $navInstitution ? app(\App\Services\OperationalAccess::class)->modules(auth()->user(), $navInstitution) : [];
         @endphp
         <button type="button" data-sidebar-overlay class="edvora-sidebar-overlay" aria-label="Close navigation" tabindex="-1"></button>
     @endauth
@@ -117,6 +118,15 @@
                         @endif
                         @if($navClasses)
                             <a href="{{ route('classrooms.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('classrooms.*', 'attendance.*', 'assessments.*') ? 'is-active' : '' }}"><span class="edvora-nav-glyph"><x-nav-icon name="classrooms" /></span><span>Classrooms</span></a>
+                        @endif
+                        @if($navOperationalModules !== [])
+                            <p class="edvora-nav-heading pt-5">Operational tools</p>
+                            @foreach($navOperationalModules as $navModule)
+                                <a href="{{ route('workspaces.index', [$navInstitution, $navModule]) }}" class="edvora-nav-link {{ request()->routeIs('workspaces.*') && request()->route('module') === $navModule ? 'is-active' : '' }}">
+                                    <span class="edvora-nav-glyph"><x-nav-icon :name="\App\Services\OperationalAccess::ICONS[$navModule]" /></span>
+                                    <span>{{ \App\Services\OperationalAccess::TITLES[$navModule] }}</span>
+                                </a>
+                            @endforeach
                         @endif
                         <p class="edvora-nav-heading pt-5">Assigned roles</p>
                         @foreach($navRoles as $code)
