@@ -176,6 +176,12 @@
                             @endif
                         @endif
                         <p class="edvora-nav-heading pt-5">Communication</p>
+                        <a href="{{ route('inbox.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('inbox.*') ? 'is-active' : '' }}">
+                            <span class="edvora-nav-glyph"><x-nav-icon name="inbox" /></span>
+                            <span>My notifications</span>
+                            @php $navUnread = app(\App\Services\InternalInbox::class)->unreadCount(auth()->user(), $navInstitution); @endphp
+                            @if($navUnread > 0)<span class="ml-auto text-xs font-bold tabular-nums">{{ $navUnread }}</span>@endif
+                        </a>
                         <a href="{{ route('announcements.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('announcements.*') ? 'is-active' : '' }}">
                             <span class="edvora-nav-glyph"><x-nav-icon name="announcements" /></span><span>Announcements</span>
                         </a>

@@ -93,6 +93,7 @@
         @if($canManagePayrollPlanning)
             <a href="{{ route('staff.payroll.index', $institution) }}" class="edvora-list-link"><span>Payroll planning (restricted)</span><span aria-hidden="true">→</span></a>
         @endif
+        <a href="{{ route('inbox.index', $institution) }}" class="edvora-list-link"><span>My notifications · {{ app(\App\Services\InternalInbox::class)->unreadCount(auth()->user(), $institution) }} unread</span><span aria-hidden="true">→</span></a>
         <a href="{{ route('announcements.index', $institution) }}" class="edvora-list-link"><span>School announcements</span><span aria-hidden="true">→</span></a>
         <a href="{{ route('helpdesk.index', $institution) }}" class="edvora-list-link"><span>Support requests · {{ $myOpenTickets }} open</span><span aria-hidden="true">→</span></a>
     </div>

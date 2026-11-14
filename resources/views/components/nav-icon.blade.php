@@ -55,6 +55,9 @@
     @case('payroll')
         <path d="M4 3h16v18l-4-2-4 2-4-2-4 2V3Z"/><path d="M8 8h8M8 12h8M8 16h5"/>
         @break
+    @case('inbox')
+        <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 13h6l2 3h2l2-3h6"/>
+        @break
     @case('announcements')
         <rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 10h8M8 14h5M8 18h8M8 3h8"/>
         @break

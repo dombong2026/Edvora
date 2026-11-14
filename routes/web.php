@@ -21,6 +21,7 @@ use App\Http\Controllers\AcademicReportController;
 use App\Http\Controllers\StudentLifecycleController;
 use App\Http\Controllers\StudentTranscriptController;
 use App\Http\Controllers\StudentResultStatementController;
+use App\Http\Controllers\InternalInboxController;
 use App\Http\Controllers\StaffLeaveController;
 use App\Http\Controllers\PayrollPlanningController;
 use App\Http\Controllers\ManualFinancialController;
@@ -212,6 +213,10 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('ticket')->middleware('throttle:20,1')->name('helpdesk.reply');
     Route::post('/dashboard/institutions/{institution:slug}/helpdesk/{ticket}/status', [InstitutionHelpdeskController::class, 'status'])
         ->whereNumber('ticket')->middleware('throttle:15,1')->name('helpdesk.status');
+    Route::get('/dashboard/institutions/{institution:slug}/inbox', [InternalInboxController::class, 'index'])
+        ->name('inbox.index');
+    Route::post('/dashboard/institutions/{institution:slug}/inbox/{notification}', [InternalInboxController::class, 'mark'])
+        ->whereNumber('notification')->middleware('throttle:30,1')->name('inbox.mark');
     Route::get('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'index'])
         ->name('announcements.index');
     Route::post('/dashboard/institutions/{institution:slug}/announcements/{announcement}/read', [InstitutionAnnouncementController::class, 'markRead'])
