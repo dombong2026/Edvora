@@ -31,8 +31,8 @@ class InstitutionInvitationTest extends TestCase
 
     private function setupInstitution(): array
     {
-        $institution = Institution::create(['name' => 'Test School', 'slug' => 'test-school']);
-        $campus = Campus::create(['institution_id' => $institution->id, 'name' => 'Main', 'slug' => 'main']);
+        $institution = Institution::create(['name' => 'Test School', 'slug' => 'test-school', 'status' => 'active']);
+        $campus = Campus::create(['institution_id' => $institution->id, 'name' => 'Main', 'slug' => 'main', 'status' => 'active']);
         $director = User::factory()->create();
         InstitutionMembership::create(['institution_id' => $institution->id, 'user_id' => $director->id, 'status' => 'active']);
         InstitutionRoleAssignment::create([

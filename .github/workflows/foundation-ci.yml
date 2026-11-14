@@ -36,8 +36,11 @@ jobs:
           tools: composer:v2
       - name: Validate Composer manifest
         run: composer validate --no-check-publish
-      - name: Resolve foundation dependencies
-        run: composer update --prefer-dist --no-interaction --no-progress
+      - name: Install exact locked PHP dependencies
+        run: |
+          test -s composer.lock
+          composer install --prefer-dist --no-interaction --no-progress
+          composer validate --no-check-publish
       - name: Configure isolated testing app
         run: |
           cp .env.example .env
@@ -63,7 +66,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --ignore-scripts --no-audit
+      - name: Install exact locked frontend dependencies
+        run: |
+          test -s package-lock.json
+          npm ci --ignore-scripts --no-audit
       - run: npm run build
 
   mysql:
@@ -91,7 +97,9 @@ jobs:
           php-version: '8.4'
           extensions: mbstring, pdo_mysql, pdo_sqlite, dom, xml, fileinfo
           tools: composer:v2
-      - run: composer update --prefer-dist --no-interaction --no-progress
+      - run: |
+          test -s composer.lock
+          composer install --prefer-dist --no-interaction --no-progress
       - name: Install into isolated CI MySQL database
         env:
           APP_ENV: testing
