@@ -36,12 +36,14 @@ final class SecurityAudit
             'reception.visit.checked_in', 'reception.visit.checked_out',
             'admissions.enquiry.created', 'admissions.enquiry.updated',
             'operations.task.created', 'operations.task.updated',
+            'help.ticket.opened', 'help.ticket.replied', 'help.ticket.closed', 'help.ticket.reopened',
+            'notice.drafted', 'notice.published', 'notice.archived',
         ], true)) {
             throw new \InvalidArgumentException('Unsupported audit event.');
         }
 
         foreach (array_keys($metadata) as $key) {
-            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship', 'academic_year_id', 'class_section_id', 'attendance_session_id', 'assessment_id', 'academic_correction_id', 'timetable_change_id', 'operational_record_id', 'operational_module'], true)) {
+            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship', 'academic_year_id', 'class_section_id', 'attendance_session_id', 'assessment_id', 'academic_correction_id', 'timetable_change_id', 'operational_record_id', 'operational_module', 'help_ticket_id', 'announcement_id'], true)) {
                 throw new \InvalidArgumentException('Unsupported audit metadata.');
             }
         }
