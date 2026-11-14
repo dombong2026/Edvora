@@ -72,6 +72,7 @@
         @endif
         @if($canManageAcademics)
             <a href="{{ route('academic.index', $institution) }}" class="edvora-list-link"><span>Academic catalog</span><span aria-hidden="true">→</span></a>
+            <a href="{{ route('reports.index', $institution) }}" class="edvora-list-link"><span>Academic reports</span><span aria-hidden="true">→</span></a>
             <a href="{{ route('students.index', $institution) }}" class="edvora-list-link"><span>Student registry</span><span aria-hidden="true">→</span></a>
             <a href="{{ route('classrooms.index', $institution) }}" class="edvora-list-link"><span>Manage classrooms</span><span aria-hidden="true">→</span></a>
         @elseif(count(array_intersect($roleCodes, ['teacher', 'professor', 'student', 'parent'])) > 0)

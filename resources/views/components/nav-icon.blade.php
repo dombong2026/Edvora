@@ -43,6 +43,9 @@
     @case('operations')
         <rect x="5" y="4" width="15" height="18" rx="2"/><path d="M9 4V2h7v2M9 10h6m-6 5 2 2 4-4"/>
         @break
+    @case('reports')
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4M12 17V8M17 17v-6"/>
+        @break
     @case('announcements')
         <rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 10h8M8 14h5M8 18h8M8 3h8"/>
         @break

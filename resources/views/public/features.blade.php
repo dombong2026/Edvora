@@ -17,7 +17,7 @@
     @php
         $features = [
             ['Identity and security', 'Institution invitations, scoped memberships, MFA, password management, account history and controlled roles.', 'security'],
-            ['Academic records', 'Academic years, subjects, class sections, assigned teachers, student records, attendance and reviewed assessments.', 'academic'],
+            ['Academic records & reports', 'Academic years, subjects, class sections, assigned teachers, attendance, reviewed assessments and leadership-only aggregate reports with CSV export.', 'academic'],
             ['Library circulation', 'Campus catalog, physical copy inventory, secure member checkout and return records.', 'library'],
             ['Operational workspaces', 'Fee proposal review, campus visitor check-in, admissions enquiries and leadership task boards.', 'operations'],
             ['Institution support', 'Private account requests, replies, searchable ticket history and closure or reopening.', 'helpdesk'],
