@@ -146,6 +146,7 @@ class InstitutionAuthorizationTest extends TestCase
         $director = User::factory()->create();
         $teacher = User::factory()->create();
         $this->assign($director, $institution, AccountRole::Director);
+        $director->forceFill(['mfa_enabled_at' => now(), 'mfa_secret' => app(\App\Services\Totp::class)->newSecret()])->save();
         InstitutionMembership::create(['user_id' => $teacher->id, 'institution_id' => $institution->id, 'status' => 'active']);
 
         $service = app(RoleAssignmentService::class);

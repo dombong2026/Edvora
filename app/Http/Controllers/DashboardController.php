@@ -6,6 +6,7 @@ use App\Enums\AccountRole;
 use App\Models\Campus;
 use App\Models\Institution;
 use App\Models\InstitutionMembership;
+use App\Models\InstitutionInvitation;
 use App\Services\InstitutionAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -80,6 +81,10 @@ class DashboardController extends Controller
                 ->whereHas('role', fn ($q) => $q->whereIn('code', ['administrator', 'director']))
                 ->exists(),
             'inviteRoles' => array_filter(AccountRole::cases(), fn (AccountRole $role) => $role !== AccountRole::Admin),
+            'pendingInvitations' => InstitutionInvitation::query()->where('institution_id', $institution->id)
+                ->whereNull('accepted_at')->whereNull('revoked_at')
+                ->where('expires_at', '>', now())
+                ->latest()->limit(10)->get(),
             'memberCount' => InstitutionMembership::query()
                 ->where('institution_id', $institution->id)
                 ->where('status', 'active')

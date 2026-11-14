@@ -102,3 +102,25 @@
     </form>
 </section>
 @endif
+
+@if($canInvite && $pendingInvitations->isNotEmpty())
+<section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+    <h2 class="text-base font-bold">Pending invitations</h2>
+    <p class="mt-2 text-xs text-slate-500">Only authorized institution leadership may view and revoke invitation links.</p>
+    <ul class="mt-4 divide-y divide-slate-200 dark:divide-slate-800">
+        @foreach($pendingInvitations as $invitation)
+            <li class="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold">{{ $invitation->email }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Expires {{ $invitation->expires_at->format('d M Y H:i') }}</p>
+                </div>
+                <form method="POST" action="{{ route('invitations.revoke', [$institution, $invitation]) }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950">Revoke invitation</button>
+                </form>
+            </li>
+        @endforeach
+    </ul>
+</section>
+@endif

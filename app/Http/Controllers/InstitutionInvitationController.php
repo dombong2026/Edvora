@@ -39,6 +39,13 @@ class InstitutionInvitationController extends Controller
         return back()->with('status', 'Invitation sent to the requested email address.');
     }
 
+    public function revoke(Request $request, Institution $institution, InstitutionInvitation $invitation, InstitutionInvitationService $service): RedirectResponse
+    {
+        $service->revoke($request->user(), $institution, $invitation);
+
+        return back()->with('status', 'Invitation revoked; its link can no longer be used.');
+    }
+
     public function show(Request $request, string $token): View|RedirectResponse
     {
         $invitation = InstitutionInvitation::query()

@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('privileged.mfa')->group(function (): void {
     Route::post('/dashboard/institutions/{institution:slug}/invitations', [InstitutionInvitationController::class, 'store'])
         ->middleware('throttle:5,1')->name('invitations.store');
+    Route::delete('/dashboard/institutions/{institution:slug}/invitations/{invitation}', [InstitutionInvitationController::class, 'revoke'])
+        ->middleware('throttle:10,1')->name('invitations.revoke');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/institutions/{institution:slug}', [DashboardController::class, 'institution'])
