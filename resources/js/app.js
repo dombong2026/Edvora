@@ -77,6 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('[data-account-menu][open]').forEach(el => el.removeAttribute('open'));
         }
     });
+    document.querySelectorAll('[data-select-member]').forEach((link) => {
+        link.addEventListener('click', () => {
+            const selector = document.getElementById('assign-user');
+            if (!selector) return;
+            selector.value = link.dataset.selectMember;
+        });
+    });
     const search = document.querySelector('[data-workspace-search]');
     if (search) {
         const cards = [...document.querySelectorAll('[data-workspace-card]')];

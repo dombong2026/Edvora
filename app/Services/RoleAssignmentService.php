@@ -14,6 +14,16 @@ use Illuminate\Validation\ValidationException;
 
 final class RoleAssignmentService
 {
+    public function canManage(User $actor, Institution $institution): bool
+    {
+        return (bool) $actor->mfa_enabled_at
+            && app(InstitutionAccess::class)->canViewInstitution($actor, $institution)
+            && $actor->roleAssignments()->where('institution_id', $institution->id)
+                ->whereNull('campus_id')
+                ->whereHas('role', fn ($query) => $query->whereIn('code', ['director', 'administrator']))
+                ->exists();
+    }
+
     /** Assign a tenant role only through an authorized institutional officer. */
     public function grant(
         User $actor,
@@ -26,12 +36,7 @@ final class RoleAssignmentService
             throw ValidationException::withMessages(['role' => 'Platform Admin is not an institution role.']);
         }
 
-        $access = app(InstitutionAccess::class);
-        if (! $actor->mfa_enabled_at || ! $access->canViewInstitution($actor, $institution)
-            || ! $actor->roleAssignments()->where('institution_id', $institution->id)
-                ->whereNull('campus_id')
-                ->whereHas('role', fn ($query) => $query->whereIn('code', ['director', 'administrator']))
-                ->exists()) {
+        if (! $this->canManage($actor, $institution)) {
             throw new AuthorizationException('Institution role grant not permitted.');
         }
 
@@ -41,6 +46,10 @@ final class RoleAssignmentService
                 ->whereHas('role', fn ($query) => $query->where('code', 'director'))
                 ->exists()) {
             throw new AuthorizationException('Only a director may assign a director role.');
+        }
+
+        if (! in_array($role->value, AccountRole::institutionWideCodes(), true) && ! $campus) {
+            throw ValidationException::withMessages(['campus_id' => 'A campus is required for this account role.']);
         }
 
         if ($campus && ($campus->institution_id !== $institution->id || $campus->status !== 'active')) {

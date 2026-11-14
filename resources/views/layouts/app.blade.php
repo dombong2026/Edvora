@@ -78,6 +78,7 @@
             $navAcademic = $navInstitution && app(\App\Services\AcademicCatalogService::class)->canManage(auth()->user(), $navInstitution);
             $navStudent = $navAcademic || count(array_intersect($navRoles, ['student', 'parent'])) > 0;
             $navClasses = $navAcademic || count(array_intersect($navRoles, ['teacher', 'professor', 'student', 'parent'])) > 0;
+            $navMembers = $navInstitution && app(\App\Services\RoleAssignmentService::class)->canManage(auth()->user(), $navInstitution);
         @endphp
         <button type="button" data-sidebar-overlay class="edvora-sidebar-overlay" aria-label="Close navigation" tabindex="-1"></button>
     @endauth
@@ -105,6 +106,9 @@
                         <a href="{{ route('dashboard.institution', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('dashboard.institution', 'dashboard.campus') ? 'is-active' : '' }}">
                             <span aria-hidden="true" class="edvora-nav-glyph">▣</span><span class="truncate">{{ $navInstitution->name }}</span>
                         </a>
+                        @if($navMembers)
+                            <a href="{{ route('members.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('members.*') ? 'is-active' : '' }}"><span aria-hidden="true" class="edvora-nav-glyph">♧</span><span>Members and roles</span></a>
+                        @endif
                         @if($navAcademic)
                             <a href="{{ route('academic.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('academic.*') ? 'is-active' : '' }}"><span aria-hidden="true" class="edvora-nav-glyph">▤</span><span>Academic catalog</span></a>
                         @endif

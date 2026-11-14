@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\InstitutionMemberController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MfaController;
 use App\Http\Controllers\InstitutionInvitationController;
@@ -114,6 +115,9 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->whereNumber('slot')->middleware('throttle:15,1')->name('timetable.changes.store');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable/changes/{change}/review', [ClassTimetableChangeController::class, 'review'])
         ->whereNumber('section')->whereNumber('change')->middleware('throttle:15,1')->name('timetable.changes.review');
+    Route::get('/dashboard/institutions/{institution:slug}/members', [InstitutionMemberController::class, 'index'])->name('members.index');
+    Route::post('/dashboard/institutions/{institution:slug}/members/roles', [InstitutionMemberController::class, 'grant'])
+        ->middleware('throttle:10,1')->name('members.grant');
     Route::get('/dashboard/platform', [DashboardController::class, 'platform'])->name('dashboard.platform');
     Route::redirect('/Dashboard', '/dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

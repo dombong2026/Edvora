@@ -33,12 +33,20 @@
     <article class="edvora-surface p-6">
         <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Classes I can access</p>
         <p class="mt-4 text-4xl font-bold tracking-tight">{{ $visibleClassCount }}</p>
-        <a href="{{ route('classrooms.index', $institution) }}" class="mt-2 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Open class workspace</a>
+        @if($canManageAcademics || count(array_intersect($roleCodes, ['teacher', 'professor', 'student', 'parent'])) > 0)
+            <a href="{{ route('classrooms.index', $institution) }}" class="mt-2 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Open class workspace</a>
+        @else
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Not part of this role</p>
+        @endif
     </article>
     <article class="edvora-surface p-6">
         <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Student records I can access</p>
         <p class="mt-4 text-4xl font-bold tracking-tight">{{ $visibleStudentCount }}</p>
-        <a href="{{ route('students.index', $institution) }}" class="mt-2 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Open student records</a>
+        @if($canManageAcademics || count(array_intersect($roleCodes, ['student', 'parent'])) > 0)
+            <a href="{{ route('students.index', $institution) }}" class="mt-2 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Open student records</a>
+        @else
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Not part of this role</p>
+        @endif
     </article>
 </div>
 
@@ -51,6 +59,10 @@
         <a href="{{ route('account.index') }}" class="edvora-secondary">My account</a>
     </div>
     <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        @if($canInvite)
+            <a href="{{ route('members.index', $institution) }}" class="edvora-list-link"><span>Members and roles</span><span aria-hidden="true">→</span></a>
+            <a href="#invitations" class="edvora-list-link"><span>Invite institution member</span><span aria-hidden="true">→</span></a>
+        @endif
         @if($canManageAcademics)
             <a href="{{ route('academic.index', $institution) }}" class="edvora-list-link"><span>Academic catalog</span><span aria-hidden="true">→</span></a>
             <a href="{{ route('students.index', $institution) }}" class="edvora-list-link"><span>Student registry</span><span aria-hidden="true">→</span></a>
