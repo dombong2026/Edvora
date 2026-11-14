@@ -459,4 +459,157 @@ final class TimetableAttendanceTest extends TestCase
         $this->assertDatabaseCount('academic_record_corrections', 0);
     }
 
+
+    public function test_schedule_revision_requires_independent_review_and_preserves_original_history(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $administrator = $this->account($school, 'administrator');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $class = $this->class($campus, $director, $teacher);
+        $slot = app(ClassTimetableService::class)->create($director, $class, [
+            'weekday' => 1, 'starts_at' => '08:00', 'ends_at' => '09:00',
+            'room_name' => 'Room A',
+        ]);
+
+        $this->actingAs($director)->post(route('timetable.changes.store', [$school, $class, $slot]), [
+            'weekday' => 1, 'starts_at' => '09:00', 'ends_at' => '10:00',
+            'room_name' => 'Room B', 'reason_code' => 'room_change',
+        ])->assertRedirect();
+
+        $change = \App\Models\ClassTimetableChange::firstOrFail();
+        $this->assertSame('pending', $change->status);
+        $this->assertSame('08:00', substr($slot->fresh()->starts_at, 0, 5));
+        $this->assertSame('Room A', $change->old_room_name);
+        $this->assertSame('Room B', $change->new_room_name);
+
+        $this->post(route('timetable.changes.store', [$school, $class, $slot]), [
+            'weekday' => 2, 'starts_at' => '11:00', 'ends_at' => '12:00',
+            'room_name' => 'Room C', 'reason_code' => 'staff_scheduling',
+        ])->assertSessionHasErrors('timetable');
+        $this->assertDatabaseCount('class_timetable_changes', 1);
+
+        $this->post(route('timetable.changes.review', [$school, $class, $change]), [
+            'decision' => 'approve',
+        ])->assertForbidden();
+
+        $this->actingAs($administrator)->post(route('timetable.changes.review', [$school, $class, $change]), [
+            'decision' => 'approve',
+        ])->assertRedirect();
+
+        $this->assertSame('approved', $change->fresh()->status);
+        $this->assertSame($administrator->id, $change->fresh()->reviewed_by);
+        $this->assertSame('09:00', substr($slot->fresh()->starts_at, 0, 5));
+        $this->assertSame('Room B', $slot->fresh()->room_name);
+        $this->assertDatabaseHas('security_events', [
+            'event_type' => 'class.timetable.revision.approved',
+            'actor_user_id' => $administrator->id,
+        ]);
+
+        $this->actingAs($director)->post(route('timetable.changes.store', [$school, $class, $slot]), [
+            'weekday' => 3, 'starts_at' => '10:00', 'ends_at' => '11:00',
+            'room_name' => 'Room C', 'reason_code' => 'operational_adjustment',
+        ])->assertRedirect();
+        $rejected = \App\Models\ClassTimetableChange::orderByDesc('id')->firstOrFail();
+
+        $this->actingAs($administrator)->post(route('timetable.changes.review', [$school, $class, $rejected]), [
+            'decision' => 'reject',
+        ])->assertRedirect();
+        $this->assertSame('rejected', $rejected->fresh()->status);
+        $this->assertSame('Room B', $slot->fresh()->room_name);
+        $this->assertDatabaseCount('class_timetable_changes', 2);
+    }
+
+    public function test_timetable_revision_approval_rechecks_room_and_teacher_conflicts(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $administrator = $this->account($school, 'administrator');
+        $teacherA = $this->account($school, 'teacher', $campus);
+        $teacherB = $this->account($school, 'teacher', $campus);
+        $a = $this->class($campus, $director, $teacherA, 'A');
+        $b = $this->class($campus, $director, $teacherB, 'B');
+        $schedule = app(ClassTimetableService::class);
+        $schedule->create($director, $a, [
+            'weekday' => 1, 'starts_at' => '08:00', 'ends_at' => '09:00', 'room_name' => 'Room A',
+        ]);
+        $slotB = $schedule->create($director, $b, [
+            'weekday' => 1, 'starts_at' => '10:00', 'ends_at' => '11:00', 'room_name' => 'Room B',
+        ]);
+
+        $this->actingAs($director)->post(route('timetable.changes.store', [$school, $b, $slotB]), [
+            'weekday' => 1, 'starts_at' => '08:30', 'ends_at' => '09:30',
+            'room_name' => 'Room A', 'reason_code' => 'conflict_resolution',
+        ])->assertRedirect();
+
+        $change = \App\Models\ClassTimetableChange::firstOrFail();
+        $this->actingAs($administrator)->post(route('timetable.changes.review', [$school, $b, $change]), [
+            'decision' => 'approve',
+        ])->assertSessionHasErrors('timetable');
+        $this->assertSame('pending', $change->fresh()->status);
+        $this->assertSame('10:00', substr($slotB->fresh()->starts_at, 0, 5));
+
+        $this->post(route('timetable.changes.review', [$school, $b, $change]), [
+            'decision' => 'reject',
+        ])->assertRedirect();
+        $this->assertSame('rejected', $change->fresh()->status);
+    }
+
+    public function test_unassigned_teacher_cannot_request_schedule_change_or_review_it(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $class = $this->class($campus, $director, $teacher);
+        $slot = app(ClassTimetableService::class)->create($director, $class, [
+            'weekday' => 1, 'starts_at' => '08:00', 'ends_at' => '09:00', 'room_name' => 'Room A',
+        ]);
+        $payload = [
+            'weekday' => 1, 'starts_at' => '09:00', 'ends_at' => '10:00',
+            'room_name' => 'Room B', 'reason_code' => 'room_change',
+        ];
+        $this->actingAs($teacher)->post(route('timetable.changes.store', [$school, $class, $slot]), $payload)
+            ->assertForbidden();
+
+        $this->actingAs($director)->post(route('timetable.changes.store', [$school, $class, $slot]), $payload)
+            ->assertRedirect();
+        $change = \App\Models\ClassTimetableChange::firstOrFail();
+
+        $this->actingAs($teacher)->post(route('timetable.changes.review', [$school, $class, $change]), [
+            'decision' => 'approve',
+        ])->assertForbidden();
+        $this->assertDatabaseHas('class_timetable_changes', [
+            'id' => $change->id, 'status' => 'pending',
+        ]);
+    }
+
+    public function test_database_rejects_revision_target_from_another_class(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $a = $this->class($campus, $director, $teacher, 'A');
+        $b = $this->class($campus, $director, $teacher, 'B');
+        $slot = app(ClassTimetableService::class)->create($director, $a, [
+            'weekday' => 1, 'starts_at' => '08:00', 'ends_at' => '09:00', 'room_name' => 'Room A',
+        ]);
+
+        $this->expectException(QueryException::class);
+        \App\Models\ClassTimetableChange::create([
+            'institution_id' => $school->id,
+            'campus_id' => $campus->id,
+            'class_section_id' => $b->id,
+            'timetable_slot_id' => $slot->id,
+            'old_weekday' => 1, 'old_starts_at' => '08:00', 'old_ends_at' => '09:00',
+            'old_room_name' => 'Room A',
+            'new_weekday' => 1, 'new_starts_at' => '09:00', 'new_ends_at' => '10:00',
+            'new_room_name' => 'Room B',
+            'reason_code' => 'room_change', 'requested_by' => $director->id,
+        ]);
+    }
+
 }
