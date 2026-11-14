@@ -11,7 +11,9 @@
 </header>
 <div class="mb-6 flex flex-wrap gap-2">
     <a href="{{ route('workspaces.index', [$institution, 'cashier']) }}" class="edvora-secondary">Fee proposal review</a>
-    <a href="{{ route('staff.payroll.index', $institution) }}" class="edvora-secondary {{ $canReview ? '' : 'hidden' }}" @if(!$canReview) tabindex="-1" aria-hidden="true" @endif>Payroll planning</a>
+    @if($canReview)
+        <a href="{{ route('staff.payroll.index', $institution) }}" class="edvora-secondary">Payroll planning</a>
+    @endif
 </div>
 <section class="edvora-surface p-6">
     <form method="GET" action="{{ route('finance.index', $institution) }}" class="flex flex-wrap items-end gap-3">

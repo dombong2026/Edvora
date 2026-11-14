@@ -49,6 +49,9 @@
     @case('leave')
         <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 2v6M16 2v6M3 10h18m-13 5 2 2 5-5"/>
         @break
+    @case('billing')
+        <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 14h5M16 13h2"/>
+        @break
     @case('payroll')
         <path d="M4 3h16v18l-4-2-4 2-4-2-4 2V3Z"/><path d="M8 8h8M8 12h8M8 16h5"/>
         @break

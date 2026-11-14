@@ -85,6 +85,11 @@
         @if($canAccessStaffLeave)
             <a href="{{ route('staff.leave.index', $institution) }}" class="edvora-list-link"><span>Staff leave requests</span><span aria-hidden="true">→</span></a>
         @endif
+        @if(in_array('cashier', $roleCodes, true) || in_array('director', $roleCodes, true) || in_array('administrator', $roleCodes, true))
+            @if(app(\App\Services\ManualFinancialLedger::class)->campuses(auth()->user(), $institution)->isNotEmpty())
+            <a href="{{ route('finance.index', $institution) }}" class="edvora-list-link"><span>Billing & manual reconciliation</span><span aria-hidden="true">→</span></a>
+            @endif
+        @endif
         @if($canManagePayrollPlanning)
             <a href="{{ route('staff.payroll.index', $institution) }}" class="edvora-list-link"><span>Payroll planning (restricted)</span><span aria-hidden="true">→</span></a>
         @endif

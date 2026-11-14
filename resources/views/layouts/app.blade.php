@@ -103,6 +103,7 @@
             $navOperationalModules = $navInstitution ? app(\App\Services\OperationalAccess::class)->modules(auth()->user(), $navInstitution) : [];
             $navStaff = $navInstitution && app(\App\Services\StaffWorkflows::class)->eligibleCampuses(auth()->user(), $navInstitution)->isNotEmpty();
             $navPayroll = $navInstitution && app(\App\Services\StaffWorkflows::class)->canReview(auth()->user(), $navInstitution);
+            $navFinance = $navInstitution && app(\App\Services\ManualFinancialLedger::class)->campuses(auth()->user(), $navInstitution)->isNotEmpty();
         @endphp
         <button type="button" data-sidebar-overlay class="edvora-sidebar-overlay" aria-label="Close navigation" tabindex="-1"></button>
     @endauth
@@ -154,6 +155,11 @@
                         @if($navReports)
                             <a href="{{ route('reports.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('reports.*') ? 'is-active' : '' }}">
                                 <span class="edvora-nav-glyph"><x-nav-icon name="reports" /></span><span>Academic reports</span>
+                            </a>
+                        @endif
+                        @if($navFinance)
+                            <a href="{{ route('finance.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('finance.*') ? 'is-active' : '' }}">
+                                <span class="edvora-nav-glyph"><x-nav-icon name="billing" /></span><span>Billing & reconciliation</span>
                             </a>
                         @endif
                         @if($navStaff || $navPayroll)
