@@ -350,10 +350,9 @@ final class TimetableAttendanceTest extends TestCase
             'session_date' => '2027-06-13',
         ])->assertRedirect();
 
-        $this->assertDatabaseHas('class_attendance_sessions', [
-            'class_section_id' => $class->id,
-            'session_date' => '2027-06-13',
-        ]);
+        $session = ClassAttendanceSession::firstOrFail();
+        $this->assertSame($class->id, $session->class_section_id);
+        $this->assertSame('2027-06-13', $session->session_date->toDateString());
     }
 
 }
