@@ -20,6 +20,7 @@ use App\Http\Controllers\InstitutionAnnouncementController;
 use App\Http\Controllers\AcademicReportController;
 use App\Http\Controllers\StudentLifecycleController;
 use App\Http\Controllers\StudentTranscriptController;
+use App\Http\Controllers\StudentResultStatementController;
 use App\Http\Controllers\StaffLeaveController;
 use App\Http\Controllers\PayrollPlanningController;
 use App\Http\Controllers\ManualFinancialController;
@@ -85,6 +86,18 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('student')->name('students.transcript.show');
     Route::get('/dashboard/institutions/{institution:slug}/students/{student}/results/export', [StudentTranscriptController::class, 'export'])
         ->whereNumber('student')->middleware('throttle:15,1')->name('students.transcript.export');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/statements', [StudentResultStatementController::class, 'index'])
+        ->whereNumber('student')->name('students.statements.index');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/statements', [StudentResultStatementController::class, 'store'])
+        ->whereNumber('student')->middleware('throttle:10,1')->name('students.statements.store');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}/review', [StudentResultStatementController::class, 'review'])
+        ->whereNumber('student')->whereNumber('statement')->middleware('throttle:10,1')->name('students.statements.review');
+    Route::post('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}/revoke', [StudentResultStatementController::class, 'revoke'])
+        ->whereNumber('student')->whereNumber('statement')->middleware('throttle:10,1')->name('students.statements.revoke');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}', [StudentResultStatementController::class, 'show'])
+        ->whereNumber('student')->whereNumber('statement')->name('students.statements.show');
+    Route::get('/dashboard/institutions/{institution:slug}/students/{student}/statements/{statement}/export', [StudentResultStatementController::class, 'export'])
+        ->whereNumber('student')->whereNumber('statement')->middleware('throttle:15,1')->name('students.statements.export');
     Route::post('/dashboard/institutions/{institution:slug}/students/{student}/account', [StudentRegistryController::class, 'linkAccount'])
         ->whereNumber('student')->middleware('throttle:10,1')->name('students.account.link');
     Route::post('/dashboard/institutions/{institution:slug}/students/{student}/guardians', [StudentRegistryController::class, 'verifyGuardian'])

@@ -178,7 +178,8 @@ final class StudentLifecycleService
                         || DB::table('student_guardian_links')->where('student_profile_id', $student->id)
                             ->whereNull('revoked_at')->exists()
                         || DB::table('class_enrollments')->where('student_profile_id', $student->id)->exists()
-                        || DB::table('student_invoices')->where('student_profile_id', $student->id)->exists()) {
+                        || DB::table('student_invoices')->where('student_profile_id', $student->id)->exists()
+                        || DB::table('student_result_statements')->where('student_profile_id', $student->id)->exists()) {
                         throw ValidationException::withMessages([
                             'student' => 'Transfer blocked until account roles, guardians, historic enrollments and financial records are independently reconciled.',
                         ]);
