@@ -109,8 +109,8 @@ final class StudentResultStatementService
                     'results' => $results->map(fn ($r) => [
                         'subject' => $r->subject_name, 'class' => $r->class_name,
                         'assessment' => $r->assessment_title,
-                        'points' => (string) $r->points_earned,
-                        'maximum' => (string) $r->max_points,
+                        'points' => $this->twoDecimals($r->points_earned),
+                        'maximum' => $this->twoDecimals($r->max_points),
                         'published_at' => (string) $r->published_at,
                     ])->all(),
                 ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
@@ -165,6 +165,13 @@ final class StudentResultStatementService
             && hash_equals($statement->snapshot_sha256, hash('sha256', $statement->snapshot_json)), 409,
             'The issued snapshot is unavailable or fails its integrity check.');
         return json_decode($statement->snapshot_json, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /** Preserve DECIMAL(8,2) presentation identically in SQLite and MySQL without float math. */
+    private function twoDecimals($value): string
+    {
+        $parts = explode('.', (string) $value, 2);
+        return $parts[0].'.'.str_pad(substr($parts[1] ?? '', 0, 2), 2, '0');
     }
 
     /** Restrict to published results for exactly one student's authorized academic year. */
