@@ -76,4 +76,10 @@
     </div>
     <p class="mt-5 text-xs text-slate-500">This is an individual class assessment result, not a final transcript or academic promotion decision.</p>
 </section>
+@include('dashboard.partials.academic-corrections', [
+    'kind' => 'assessment',
+    'items' => $results,
+    'canRequest' => $canWrite && $assessment->status === 'published',
+    'canReview' => $canReview,
+])
 @endsection

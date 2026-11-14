@@ -116,6 +116,7 @@ final class ClassAttendanceController extends Controller
                     ->where('institution_id', $institution->id)
                     ->where('class_section_id', $class->id)
                     ->where('kind', 'attendance')->where('status', 'pending')
+                    ->whereHas('attendanceMark', fn ($query) => $query->where('attendance_session_id', $record->id))
                     ->with(['requester:id,name', 'attendanceMark.enrollment.student:id,student_number,display_name'])
                     ->orderBy('id')->limit(100)->get()
                 : collect(),

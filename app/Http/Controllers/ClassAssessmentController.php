@@ -120,6 +120,7 @@ final class ClassAssessmentController extends Controller
                     ->where('institution_id', $institution->id)
                     ->where('class_section_id', $class->id)
                     ->where('kind', 'assessment')->where('status', 'pending')
+                    ->whereHas('assessmentResult', fn ($query) => $query->where('assessment_id', $item->id))
                     ->with(['requester:id,name', 'assessmentResult.enrollment.student:id,student_number,display_name'])
                     ->orderBy('id')->limit(100)->get()
                 : collect(),

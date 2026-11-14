@@ -79,4 +79,10 @@
         </table>
     </div>
 </section>
+@include('dashboard.partials.academic-corrections', [
+    'kind' => 'attendance',
+    'items' => $marks,
+    'canRequest' => $canTake && $session->status === 'approved',
+    'canReview' => $canApprove,
+])
 @endsection
