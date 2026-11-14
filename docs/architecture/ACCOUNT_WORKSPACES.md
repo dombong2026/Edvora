@@ -3,6 +3,7 @@
 ## Delivery scope
 - Single responsive Blade/Tailwind shell for public pages, platform administrator, all 14 institution-scoped account roles, MFA, and the personal account center.
 - Same header, responsive/collapsible navigation, light/dark/system appearance, focus states, action feedback and typography.
+- Institution director/administrator member list is tenant-scoped, paginated and searchable; grants reuse audited role-authorization service, with campus mandatory for non-leadership roles.
 - Server-computed, real routes only: institution overview, permitted student records, assigned classrooms, academic catalog for authorized officers, campus selector, role switcher, profile, MFA and recent actions.
 - Platform dashboard shows only role catalog count, current user's authorized institution count, and security/configuration status; it **does not** list other schools, students, or cross-tenant statistics.
 - Account center permits name changes and password rotation with current-password verification. Verified email and role assignments stay administrator-controlled.

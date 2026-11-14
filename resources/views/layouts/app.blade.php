@@ -88,41 +88,41 @@
                 <nav class="edvora-surface space-y-1 p-3" aria-label="Account workspaces">
                     <p class="edvora-nav-heading">Workspace</p>
                     <a href="{{ route('dashboard') }}" class="edvora-nav-link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                        <span aria-hidden="true" class="edvora-nav-glyph">⌂</span><span>Dashboard</span>
+                        <span class="edvora-nav-glyph"><x-nav-icon name="dashboard" /></span><span>Dashboard</span>
                     </a>
                     <a href="{{ route('account.index') }}" class="edvora-nav-link {{ request()->routeIs('account.*') ? 'is-active' : '' }}">
-                        <span aria-hidden="true" class="edvora-nav-glyph">◎</span><span>My account</span>
+                        <span class="edvora-nav-glyph"><x-nav-icon name="account" /></span><span>My account</span>
                     </a>
                     <a href="{{ route('mfa.setup') }}" class="edvora-nav-link {{ request()->routeIs('mfa.*') ? 'is-active' : '' }}">
-                        <span aria-hidden="true" class="edvora-nav-glyph">◇</span><span>Security</span>
+                        <span class="edvora-nav-glyph"><x-nav-icon name="security" /></span><span>Security</span>
                     </a>
                     @if(auth()->user()->isPlatformAdmin())
                         <a href="{{ route('dashboard.platform') }}" class="edvora-nav-link {{ request()->routeIs('dashboard.platform') ? 'is-active' : '' }}">
-                            <span aria-hidden="true" class="edvora-nav-glyph">▦</span><span>Platform console</span>
+                            <span class="edvora-nav-glyph"><x-nav-icon name="platform" /></span><span>Platform console</span>
                         </a>
                     @endif
                     @if($navInstitution && $navRoles !== [])
                         <p class="edvora-nav-heading pt-5">Institution</p>
                         <a href="{{ route('dashboard.institution', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('dashboard.institution', 'dashboard.campus') ? 'is-active' : '' }}">
-                            <span aria-hidden="true" class="edvora-nav-glyph">▣</span><span class="truncate">{{ $navInstitution->name }}</span>
+                            <span class="edvora-nav-glyph"><x-nav-icon name="institution" /></span><span class="truncate">{{ $navInstitution->name }}</span>
                         </a>
                         @if($navMembers)
-                            <a href="{{ route('members.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('members.*') ? 'is-active' : '' }}"><span aria-hidden="true" class="edvora-nav-glyph">♧</span><span>Members and roles</span></a>
+                            <a href="{{ route('members.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('members.*') ? 'is-active' : '' }}"><span class="edvora-nav-glyph"><x-nav-icon name="members" /></span><span>Members and roles</span></a>
                         @endif
                         @if($navAcademic)
-                            <a href="{{ route('academic.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('academic.*') ? 'is-active' : '' }}"><span aria-hidden="true" class="edvora-nav-glyph">▤</span><span>Academic catalog</span></a>
+                            <a href="{{ route('academic.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('academic.*') ? 'is-active' : '' }}"><span class="edvora-nav-glyph"><x-nav-icon name="academic" /></span><span>Academic catalog</span></a>
                         @endif
                         @if($navStudent)
-                            <a href="{{ route('students.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('students.*') ? 'is-active' : '' }}"><span aria-hidden="true" class="edvora-nav-glyph">♙</span><span>Student records</span></a>
+                            <a href="{{ route('students.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('students.*') ? 'is-active' : '' }}"><span class="edvora-nav-glyph"><x-nav-icon name="students" /></span><span>Student records</span></a>
                         @endif
                         @if($navClasses)
-                            <a href="{{ route('classrooms.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('classrooms.*', 'attendance.*', 'assessments.*') ? 'is-active' : '' }}"><span aria-hidden="true" class="edvora-nav-glyph">▥</span><span>Classrooms</span></a>
+                            <a href="{{ route('classrooms.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('classrooms.*', 'attendance.*', 'assessments.*') ? 'is-active' : '' }}"><span class="edvora-nav-glyph"><x-nav-icon name="classrooms" /></span><span>Classrooms</span></a>
                         @endif
                         <p class="edvora-nav-heading pt-5">Assigned roles</p>
                         @foreach($navRoles as $code)
                             @php $roleLabel = \App\Enums\AccountRole::tryFrom($code)?->label() ?? ucfirst($code); @endphp
                             <a href="{{ route('dashboard.role', [$navInstitution, $code]) }}" class="edvora-nav-link {{ request()->routeIs('dashboard.role') && request()->route('role') === $code ? 'is-active' : '' }}">
-                                <span aria-hidden="true" class="edvora-nav-glyph">•</span><span>{{ $roleLabel }}</span>
+                                <span class="edvora-nav-glyph"><x-nav-icon name="role" /></span><span>{{ $roleLabel }}</span>
                             </a>
                         @endforeach
                     @endif
