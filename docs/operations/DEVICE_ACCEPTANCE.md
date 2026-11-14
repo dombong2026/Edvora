@@ -51,3 +51,11 @@ Correction review scenarios:
 - Assigned teacher requests a published score correction within the marking maximum
 - Other staff/campus, suspended accounts and self-approval cannot change results
 - On iPhone/Android, form labels, validation errors and independent decision actions are usable
+
+
+Timetable revision review (additional device acceptance):
+- Officer proposes a new room/time for an existing recurring slot
+- Other verified institutional officer can approve or reject the proposal
+- Conflicting room or teacher schedules cannot be approved
+- Pending revisions do not change the class timetable shown to families
+- Historic original/target times and reviewer are not visible to unrelated accounts

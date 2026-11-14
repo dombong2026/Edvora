@@ -39,11 +39,12 @@ Do not execute installation commands against production school records without a
 - Teacher-recorded attendance: date-scoped draft marks, complete-roster submission, and independent officer approval before private student/guardian visibility.
 - Assessment scorebook: maximum-point validation, draft score entry, full-roster submission, and independent publication of per-student results.
 - Controlled attendance/grade corrections: teacher request, reason code, before/after snapshot, independent officer approval or rejection and auditable history.
+- Timetable rescheduling: institution-officer change requests, separate MFA-enabled reviewer, conflict rechecking on approval, before/after review history, and conflict-safe teacher reassignment.
 - Guarded aaPanel staging preflight, HTTPS checks and AGE-encrypted QA backup/restore rehearsal scripts.
 - Responsive premium dashboard, with persistent light, dark and system appearance.
 - Empty states and real authorized dashboard data; no fake records.
 
-**Not yet shipped:** complete admissions, timetable revisions and room/resource changes, automatic attendance/grade correction appeals, final grade/transcript computation, full assignments and examinations, financial collection, HR/payroll, library operations, formal custody evidence review, approved live mail delivery, privileged account recovery, and production integrations. This is not yet a complete school ERP.
+**Not yet shipped:** complete admissions, unsupervised schedule changes and resource capacity scheduling, automatic attendance/grade correction appeals, final grade/transcript computation, full assignments and examinations, financial collection, HR/payroll, library operations, formal custody evidence review, approved live mail delivery, privileged account recovery, and production integrations. This is not yet a complete school ERP.
 
 ## Documentation
 
@@ -51,6 +52,7 @@ Do not execute installation commands against production school records without a
 - [Student and classroom authorization](docs/architecture/STUDENT_CLASSROOM_SECURITY.md)
 - [Scheduling, attendance and grading controls](docs/architecture/ATTENDANCE_AND_ASSESSMENT.md)
 - [Controlled correction review workflow](docs/architecture/CORRECTION_REVIEW.md)
+- [Timetable change review](docs/architecture/TIMETABLE_CHANGE_REVIEW.md)
 - [Installation and QA](docs/installation/README.md)
 - [Security](docs/security/README.md)
 - [API status](docs/api/README.md)

@@ -12,7 +12,12 @@ row, then check same-class overlaps, same-campus room conflicts and
 assigned-teacher conflicts across its classrooms. Timetable slots carry
 institution, campus and section composite foreign keys.
 
-The current scope has no timetable edit/delete, calendar holidays,
+Controlled change requests for existing slots can now be independently approved
+or rejected. Approval rechecks same-class overlaps, room reservations and
+teacher conflicts while holding the institution lock. Assigning a different
+teacher to a class also rejects timetable collisions before changing the
+assignment. Schedule changes retain before/after values and reviewer IDs.
+Direct slot deletion, calendar holidays,
 cross-institution teacher conflict guarantee, substitute-teacher workflow,
 room capacity engine, academic-term recurrence dates or independent
 approval of staff reassignments. Do not use it for a live school timetable.

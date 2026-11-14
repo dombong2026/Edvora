@@ -14,6 +14,8 @@ Implemented source code:
 - [x] Timezone-aware class timetable; room/teacher overlap checks on initial creation.
 - [x] Teacher-only attendance drafts, independent approval, family-specific published reads.
 - [x] Assessment drafts and decimal scoring, independent publication, family-specific published results.
+- [x] Controlled timetable revision requests, independent officer review,
+      conflict recheck on approval, and teacher reassignment overlap rejection.
 - [x] Controlled attendance and grade correction requests, independent decision,
       original/new value snapshots, reason codes and scoped audit events.
 
@@ -29,7 +31,8 @@ Outstanding independent acceptance:
 - [ ] Physical school attendance and score-review workflows and exception/appeal handling.
 - [ ] Independent authorization/retention and correction-history privacy review.
 - [ ] Real-world notification, custody and grievance handling for corrected records.
-- [ ] Conflicting teacher reassignment, concurrent timetable inserts, and institutional timezone review.
+- [ ] Independent live-data teacher reassignment, concurrent timetable inserts,
+      change-review conflicts and institutional timezone verification.
 - [ ] School retention and privacy review for attendance, assessment scoring and audit metadata.
 - [ ] School privacy and regional legal review.
 - [ ] Owner signoff and a separate approved release plan.

@@ -29,6 +29,11 @@ Separate authorized staging installation acceptance must verify:
 - Campus and institutional boundaries for every supported role.
 - Theme, dashboard, password reset sandbox and mobile/browser behavior.
 - Synthetic recurring timetable and room/teacher conflict checks; verify school timezone.
+- Controlled rescheduling: separate MFA-enabled officers request and approve;
+  original slot remains unchanged before approval; source change conflicts
+  are rechecked; rejection and stale reviews do not update active timetables.
+- Try assigning a teacher to two overlapping classes and confirm the
+  reassignment is rejected without a partial update.
 - Attendance drafts, class roster completeness, separate officer approval and lock-after-approval.
 - Assessment scoring (including zero and decimal points), max-score validation,
   independent publication and lock-after-publication.
