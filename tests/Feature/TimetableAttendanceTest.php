@@ -612,4 +612,31 @@ final class TimetableAttendanceTest extends TestCase
         ]);
     }
 
+
+    public function test_teacher_reassignment_refuses_overlapping_existing_schedule(): void
+    {
+        $school = $this->school();
+        $campus = $this->campus($school);
+        $director = $this->account($school, 'director');
+        $teacherA = $this->account($school, 'teacher', $campus);
+        $teacherB = $this->account($school, 'teacher', $campus);
+        $a = $this->class($campus, $director, $teacherA, 'A');
+        $b = $this->class($campus, $director, $teacherB, 'B');
+        $schedule = app(ClassTimetableService::class);
+
+        $schedule->create($director, $a, [
+            'weekday' => 1, 'starts_at' => '09:00', 'ends_at' => '10:00', 'room_name' => 'Room A',
+        ]);
+        $schedule->create($director, $b, [
+            'weekday' => 1, 'starts_at' => '09:30', 'ends_at' => '10:30', 'room_name' => 'Room B',
+        ]);
+
+        $this->actingAs($director)->post(route('classrooms.teacher.assign', [$school, $b]), [
+            'email' => $teacherA->email,
+        ])->assertSessionHasErrors('email');
+
+        $this->assertSame($teacherB->id, $b->fresh()->teacher_user_id);
+        $this->assertDatabaseCount('class_timetable_slots', 2);
+    }
+
 }
