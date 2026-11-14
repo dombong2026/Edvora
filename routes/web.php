@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\OperationalWorkspaceController;
 use App\Http\Controllers\InstitutionMemberController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MfaController;
@@ -115,6 +116,19 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('section')->whereNumber('slot')->middleware('throttle:15,1')->name('timetable.changes.store');
     Route::post('/dashboard/institutions/{institution:slug}/classes/{section}/timetable/changes/{change}/review', [ClassTimetableChangeController::class, 'review'])
         ->whereNumber('section')->whereNumber('change')->middleware('throttle:15,1')->name('timetable.changes.review');
+    Route::get('/dashboard/institutions/{institution:slug}/workspaces/{module}', [OperationalWorkspaceController::class, 'index'])
+        ->whereIn('module', ['library', 'cashier', 'reception', 'admissions', 'operations'])
+        ->name('workspaces.index');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/{module}', [OperationalWorkspaceController::class, 'store'])
+        ->whereIn('module', ['library', 'cashier', 'reception', 'admissions', 'operations'])
+        ->middleware('throttle:20,1')->name('workspaces.store');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/{module}/{record}/status', [OperationalWorkspaceController::class, 'transition'])
+        ->whereIn('module', ['cashier', 'reception', 'admissions', 'operations'])
+        ->whereNumber('record')->middleware('throttle:30,1')->name('workspaces.transition');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/{item}/loans', [OperationalWorkspaceController::class, 'issueLoan'])
+        ->whereNumber('item')->middleware('throttle:30,1')->name('workspaces.loans.issue');
+    Route::post('/dashboard/institutions/{institution:slug}/workspaces/library/loans/{loan}/return', [OperationalWorkspaceController::class, 'returnLoan'])
+        ->whereNumber('loan')->middleware('throttle:30,1')->name('workspaces.loans.return');
     Route::get('/dashboard/institutions/{institution:slug}/members', [InstitutionMemberController::class, 'index'])->name('members.index');
     Route::post('/dashboard/institutions/{institution:slug}/members/roles', [InstitutionMemberController::class, 'grant'])
         ->middleware('throttle:10,1')->name('members.grant');
