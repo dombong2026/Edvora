@@ -153,6 +153,7 @@ class InstitutionAuthorizationTest extends TestCase
         $result = $service->grant($director, $teacher, $institution, AccountRole::Teacher, $campus);
 
         $this->assertSame($campus->id, $result->campus_id);
+        $this->assertDatabaseHas('security_events', ['event_type' => 'role.granted', 'actor_user_id' => $director->id]);
         $this->expectException(ValidationException::class);
         $service->grant($director, $teacher, $institution, AccountRole::Admin);
     }

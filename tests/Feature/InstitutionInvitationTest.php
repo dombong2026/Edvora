@@ -137,4 +137,71 @@ class InstitutionInvitationTest extends TestCase
             $director, $institution, 'nobody@example.test', AccountRole::Teacher, null
         );
     }
+
+    public function test_new_invitee_can_create_account_only_using_valid_one_time_token(): void
+    {
+        [$institution, $campus, $director] = $this->setupInstitution();
+        $service = app(InstitutionInvitationService::class);
+        $invitation = $service->invite($director, $institution, 'newuser@example.test', AccountRole::Teacher, $campus);
+        $invitation->forceFill(['token_hash' => hash('sha256', 'secure-token')])->save();
+
+        $this->get(route('invitations.show', ['token' => 'secure-token']))
+            ->assertOk()->assertSee('Join Test School');
+        $this->post(route('invitations.accept', ['token' => 'secure-token']), [
+            'name' => 'Invited Teacher',
+            'password' => 'LongCorrectPassword123!',
+            'password_confirmation' => 'LongCorrectPassword123!',
+        ])->assertRedirect(route('dashboard'));
+
+        $user = User::where('email', 'newuser@example.test')->firstOrFail();
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotNull($user->email_verified_at);
+        $this->assertSame('teacher', $user->roleAssignments()->with('role')->first()->role->code);
+        $this->assertDatabaseHas('security_events', ['event_type' => 'invitation.accepted', 'subject_user_id' => $user->id]);
+
+        $this->post(route('invitations.accept', ['token' => 'secure-token']))->assertNotFound();
+        $this->assertDatabaseCount('users', 2);
+    }
+
+    public function test_existing_user_must_sign_in_before_accepting(): void
+    {
+        [$institution, $campus, $director] = $this->setupInstitution();
+        $invitee = User::factory()->create(['email' => 'existing@example.test']);
+        $invitation = app(InstitutionInvitationService::class)
+            ->invite($director, $institution, $invitee->email, AccountRole::Teacher, $campus);
+        $invitation->forceFill(['token_hash' => hash('sha256', 'login-first')])->save();
+
+        $this->get(route('invitations.show', ['token' => 'login-first']))
+            ->assertRedirect(route('login'));
+        $this->assertDatabaseMissing('institution_memberships', [
+            'user_id' => $invitee->id, 'institution_id' => $institution->id,
+        ]);
+
+        $this->actingAs($invitee)->get(route('invitations.show', ['token' => 'login-first']))
+            ->assertOk();
+        $this->post(route('invitations.accept', ['token' => 'login-first']))
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseHas('institution_memberships', [
+            'user_id' => $invitee->id, 'institution_id' => $institution->id, 'status' => 'active',
+        ]);
+    }
+
+    public function test_authorized_officer_can_revoke_pending_invitation(): void
+    {
+        [$institution, $campus, $director] = $this->setupInstitution();
+        $invitation = app(InstitutionInvitationService::class)
+            ->invite($director, $institution, 'revoked@example.test', AccountRole::Student, $campus);
+        $invitation->forceFill(['token_hash' => hash('sha256', 'revoke-token')])->save();
+
+        $this->actingAs($director)->delete(route('invitations.revoke', [$institution, $invitation]))
+            ->assertRedirect();
+
+        $this->assertNotNull($invitation->fresh()->revoked_at);
+        $this->assertDatabaseHas('security_events', [
+            'event_type' => 'invitation.revoked', 'actor_user_id' => $director->id,
+        ]);
+        $this->get(route('invitations.show', ['token' => 'revoke-token']))->assertNotFound();
+    }
+
 }

@@ -126,4 +126,22 @@ class MfaAuthenticationTest extends TestCase
         $this->actingAs($student)->get(route('dashboard.institution', $institution))
             ->assertOk();
     }
+
+    public function test_using_recovery_code_writes_security_audit_without_logging_secret(): void
+    {
+        $user = User::factory()->create();
+        $user->forceFill([
+            'mfa_secret' => app(Totp::class)->newSecret(),
+            'mfa_enabled_at' => now(),
+        ])->save();
+        $plain = 'ABCDEF123456ABCDEF123456';
+        $user->recoveryCodes()->create(['code_hash' => hash('sha256', $plain)]);
+        $this->assertTrue(app(MfaService::class)->verifyAndConsume($user, $plain));
+
+        $this->assertDatabaseHas('security_events', [
+            'actor_user_id' => $user->id, 'event_type' => 'mfa.recovery.used',
+        ]);
+        $this->assertDatabaseMissing('security_events', ['metadata' => $plain]);
+    }
+
 }
