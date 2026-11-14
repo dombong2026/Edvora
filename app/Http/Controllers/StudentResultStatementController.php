@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class StudentResultStatementController extends Controller
@@ -116,14 +117,14 @@ final class StudentResultStatementController extends Controller
     public function show(
         Request $request, Institution $institution, int $student, int $statement,
         StudentResultStatementService $statements
-    ): View {
+    ): Response {
         $profile = $this->authorized($request, $institution, $student);
         $record = $this->record($institution, $profile, $statement);
         $snapshot = $statements->snapshot($record);
-        return view('dashboard.students.statements.show', [
+        return response()->view('dashboard.students.statements.show', [
             'institution' => $institution, 'profile' => $profile,
             'statement' => $record, 'snapshot' => $snapshot,
-        ])->withHeaders(['Cache-Control' => 'private, no-store, max-age=0',
+        ], 200, ['Cache-Control' => 'private, no-store, max-age=0',
             'X-Robots-Tag' => 'noindex, nofollow']);
     }
 

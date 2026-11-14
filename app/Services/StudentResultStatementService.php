@@ -28,6 +28,20 @@ final class StudentResultStatementService
             throw new AuthorizationException('Student record and academic year must belong to your authorized institution.');
         }
 
+        // An academic statement must have a real institutional enrollment in that year.
+        $enrolled = DB::table('class_enrollments as e')
+            ->join('class_sections as c', function ($join): void {
+                $join->on('c.id', '=', 'e.class_section_id')
+                    ->on('c.institution_id', '=', 'e.institution_id')
+                    ->on('c.campus_id', '=', 'e.campus_id');
+            })
+            ->where('e.institution_id', $student->institution_id)
+            ->where('e.student_profile_id', $student->id)
+            ->where('c.academic_year_id', $year->id)->exists();
+        if (! $enrolled) {
+            throw ValidationException::withMessages(['academic_year_id' => 'This student has no verified enrollment in the selected year.']);
+        }
+
         return DB::transaction(function () use ($actor, $student, $year): int {
             // Serialize repeated requests for a student's academic year.
             StudentProfile::query()->where('institution_id', $student->institution_id)

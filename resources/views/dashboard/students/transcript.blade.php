@@ -10,6 +10,7 @@
     <div class="flex flex-wrap gap-2">
         <a href="{{ route('students.show', [$institution, $profile->id]) }}" class="edvora-secondary">Student record</a>
         <a href="{{ route('students.transcript.export', [$institution, $profile->id]) }}" class="edvora-primary">Export results CSV</a>
+        <a href="{{ route('students.statements.index', [$institution, $profile->id]) }}" class="edvora-secondary">Request an issued statement</a>
     </div>
 </header>
 <section class="edvora-surface p-6">

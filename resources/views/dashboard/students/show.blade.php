@@ -8,6 +8,7 @@
     <a class="mt-4 inline-flex text-sm font-semibold text-blue-600 hover:underline" href="{{ route('students.index', $institution) }}">Back to student workspace</a>
     <div class="mt-4 flex flex-wrap gap-3">
         <a class="edvora-secondary" href="{{ route('students.transcript.show', [$institution, $profile->id]) }}">Reviewed academic results</a>
+        <a class="edvora-secondary" href="{{ route('students.statements.index', [$institution, $profile->id]) }}">Academic result statements</a>
         @if($canManage)
             <a class="edvora-primary" href="{{ route('students.lifecycle.index', [$institution, $profile->id]) }}">Student promotion / transfer / withdrawal</a>
         @endif
