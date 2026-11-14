@@ -34,10 +34,24 @@
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 10 9-6 9 6-9 6-9-6Z"/><path d="M6 13v5c4 3 8 3 12 0v-5M21 10v6"/></svg>
                     </span>
-                    <span class="text-lg font-extrabold tracking-tight">Edvora<span class="text-blue-600 dark:text-blue-400">.</span></span>
+                    <span class="hidden text-lg font-extrabold tracking-tight min-[400px]:inline">Edvora<span class="text-blue-600 dark:text-blue-400">.</span></span>
                 </a>
             </div>
             <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                @guest
+                    <details class="relative xl:hidden">
+                        <summary class="edvora-icon-button cursor-pointer list-none" aria-label="Site navigation" title="Site navigation">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </summary>
+                        <nav class="absolute right-0 z-50 mt-2 w-48 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900" aria-label="Public pages">
+                            <a href="{{ route('home') }}" class="edvora-menu-item">Home</a>
+                            <a href="{{ route('public.features') }}" class="edvora-menu-item">Features</a>
+                            <a href="{{ route('public.roles') }}" class="edvora-menu-item">Roles</a>
+                            <a href="{{ route('public.security') }}" class="edvora-menu-item">Security</a>
+                            <a href="{{ route('public.help') }}" class="edvora-menu-item">Help</a>
+                        </nav>
+                    </details>
+                @endguest
                 <nav class="hidden items-center gap-1 xl:flex" aria-label="Public information">
                     <a href="{{ route('public.features') }}" class="edvora-menu-item">Features</a>
                     <a href="{{ route('public.roles') }}" class="edvora-menu-item">Roles</a>
