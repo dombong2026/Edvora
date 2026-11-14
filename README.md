@@ -40,11 +40,23 @@ Do not execute installation commands against production school records without a
 - Assessment scorebook: maximum-point validation, draft score entry, full-roster submission, and independent publication of per-student results.
 - Controlled attendance/grade corrections: teacher request, reason code, before/after snapshot, independent officer approval or rejection and auditable history.
 - Timetable rescheduling: institution-officer change requests, separate MFA-enabled reviewer, conflict rechecking on approval, before/after review history, and conflict-safe teacher reassignment.
-- Guarded aaPanel staging preflight, HTTPS checks and AGE-encrypted QA backup/restore rehearsal scripts.
+- Operational workspaces for library lending, reviewed fee proposals, reception check-in, admissions leads and task handling.
+- Private helpdesk, reviewed campus notices, role-aware dashboards and institution academic reporting.
+- Guarded student promotions, withdrawals and limited campus transfers with independent decisions.
+- Reviewed assessment results, exam timetable publication and school-reviewed point-in-time academic statements with
+  independent issue/revocation, SHA-256 snapshot integrity and private CSV export (not legally certified).
+- Leave requests with independent decisions and restricted salary-planning records without disbursement.
+- Reviewed school invoice drafting and manual statement matching without live payment processing.
+- Private in-app notification inbox, read/unread and archive actions for academic statements and staff leave reviews;
+  outbound email, SMS and push are not enabled.
+- Guarded aaPanel staging preflight, HTTPS checks and AGE-encrypted QA backup/restore rehearsal scripts,
+  including archive hash verification and disposable-schema checks.
 - Responsive premium dashboard, with persistent light, dark and system appearance.
 - Empty states and real authorized dashboard data; no fake records.
 
-**Not yet shipped:** complete admissions, unsupervised schedule changes and resource capacity scheduling, automatic attendance/grade correction appeals, final grade/transcript computation, full assignments and examinations, financial collection, HR/payroll, library operations, formal custody evidence review, approved live mail delivery, privileged account recovery, and production integrations. This is not yet a complete school ERP.
+**Still not shipped:** full linked-campus transfer reconciliation, legally certified transcript issuance and grade policy, online payments and bank-verified settlement, tax-compliant payroll disbursement, transport, complete library administration, employment contracts, approved external notifications, formal custody evidence review and production integrations. **Edvora is not yet a complete or accepted production ERP.**
+
+All the above are source-level implementations and synthetic CI work. Independent aaPanel installation, physical-device reviews, encrypted restore acceptance, and school privacy/security sign-off remain incomplete.
 
 ## Documentation
 
@@ -57,6 +69,7 @@ Do not execute installation commands against production school records without a
 - [Security](docs/security/README.md)
 - [API status](docs/api/README.md)
 - [Acceptance gates](docs/operations/ACCEPTANCE.md)
+- [ERP expansion details and limitations](docs/architecture/ERP_EXPANSION_2026_11_14.md)
 - [Independent staging QA](docs/operations/STAGING_ACCEPTANCE.md)
 - [Physical-device QA](docs/operations/DEVICE_ACCEPTANCE.md)
 - [Encrypted backup/restore](docs/operations/RECOVERY.md)
