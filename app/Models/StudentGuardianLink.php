@@ -9,12 +9,12 @@ class StudentGuardianLink extends Model
 {
     protected $fillable = [
         'student_profile_id', 'institution_id', 'guardian_user_id',
-        'relationship', 'verified_by', 'verified_at',
+        'relationship', 'verified_by', 'verified_at', 'revoked_at', 'revoked_by',
     ];
 
     protected function casts(): array
     {
-        return ['verified_at' => 'datetime'];
+        return ['verified_at' => 'datetime', 'revoked_at' => 'datetime'];
     }
 
     public function student(): BelongsTo

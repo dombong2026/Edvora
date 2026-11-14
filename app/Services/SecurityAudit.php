@@ -18,13 +18,14 @@ final class SecurityAudit
     ): void {
         if (! in_array($event, [
             'mfa.enabled', 'mfa.recovery.used', 'invitation.sent',
+            'student.created', 'student.account_linked', 'guardian.verified', 'guardian.revoked',
             'invitation.accepted', 'invitation.revoked', 'role.granted',
         ], true)) {
             throw new \InvalidArgumentException('Unsupported audit event.');
         }
 
         foreach (array_keys($metadata) as $key) {
-            if (! in_array($key, ['role', 'campus_id', 'invitation_id'], true)) {
+            if (! in_array($key, ['role', 'campus_id', 'invitation_id', 'student_profile_id', 'relationship'], true)) {
                 throw new \InvalidArgumentException('Unsupported audit metadata.');
             }
         }

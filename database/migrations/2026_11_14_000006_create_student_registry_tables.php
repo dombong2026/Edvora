@@ -35,6 +35,8 @@ return new class extends Migration
             $table->string('relationship', 24);
             $table->foreignId('verified_by')->constrained('users')->restrictOnDelete();
             $table->timestamp('verified_at');
+            $table->timestamp('revoked_at')->nullable();
+            $table->foreignId('revoked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->unique(['student_profile_id', 'guardian_user_id'], 'unique_student_guardian');
             $table->foreign(['student_profile_id', 'institution_id'])
