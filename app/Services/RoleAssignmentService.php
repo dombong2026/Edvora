@@ -27,7 +27,7 @@ final class RoleAssignmentService
         }
 
         $access = app(InstitutionAccess::class);
-        if (! $access->canViewInstitution($actor, $institution)
+        if (! $actor->mfa_enabled_at || ! $access->canViewInstitution($actor, $institution)
             || ! $actor->roleAssignments()->where('institution_id', $institution->id)
                 ->whereNull('campus_id')
                 ->whereHas('role', fn ($query) => $query->whereIn('code', ['director', 'administrator']))
@@ -65,13 +65,17 @@ final class RoleAssignmentService
                 return $existing;
             }
 
-            return InstitutionRoleAssignment::create([
+            $assignment = InstitutionRoleAssignment::create([
                 'user_id' => $subject->id,
                 'institution_id' => $institution->id,
                 'role_id' => $roleRecord->id,
                 'campus_id' => $campus?->id,
                 'assigned_by' => $actor->id,
             ]);
+            app(SecurityAudit::class)->record('role.granted', $actor, $subject, $institution, [
+                'role' => $roleRecord->code, 'campus_id' => $campus?->id,
+            ]);
+            return $assignment;
         });
     }
 }

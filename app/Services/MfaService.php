@@ -67,6 +67,8 @@ final class MfaService
                 ]);
             }
 
+            app(SecurityAudit::class)->record('mfa.enabled', $locked, $locked);
+
             return $codes;
         });
     }
@@ -102,6 +104,7 @@ final class MfaService
             }
 
             $code->forceFill(['used_at' => now()])->save();
+            app(SecurityAudit::class)->record('mfa.recovery.used', $locked, $locked);
             return true;
         });
     }

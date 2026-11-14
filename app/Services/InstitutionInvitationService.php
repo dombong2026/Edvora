@@ -26,7 +26,7 @@ final class InstitutionInvitationService
     ): InstitutionInvitation {
         // Reuse the existing authorization service; do not create broad role grants here.
         $access = app(InstitutionAccess::class);
-        if (! $access->canViewInstitution($actor, $institution)
+        if (! $actor->mfa_enabled_at || ! $access->canViewInstitution($actor, $institution)
             || ! $actor->roleAssignments()->where('institution_id', $institution->id)
                 ->whereNull('campus_id')
                 ->whereHas('role', fn ($q) => $q->whereIn('code', ['director', 'administrator']))
@@ -76,6 +76,10 @@ final class InstitutionInvitationService
             ."Role: ".$role->label()."\n"
             ."Invitation (expires in 48 hours): ".$url."\n\n"
             ."If you did not request this invitation, do not open the link.";
+
+        app(SecurityAudit::class)->record('invitation.sent', $actor, null, $institution, [
+            'role' => $role->value, 'campus_id' => $campus?->id, 'invitation_id' => $invitation->id,
+        ]);
 
         try {
             Mail::raw($message, fn ($mail) => $mail->to($email)->subject('Invitation to '.$institution->name.' | Edvora'));
@@ -129,8 +133,38 @@ final class InstitutionInvitationService
             }
 
             $invitation->forceFill(['accepted_at' => now(), 'accepted_by' => $user->id])->save();
+            app(SecurityAudit::class)->record('invitation.accepted', $user, $user, $invitation->institution, [
+                'invitation_id' => $invitation->id, 'role' => $invitation->role->code, 'campus_id' => $invitation->campus_id,
+            ]);
 
             return $invitation;
+        });
+    }
+    public function revoke(User $actor, Institution $institution, InstitutionInvitation $invitation): void
+    {
+        $access = app(InstitutionAccess::class);
+        if ((int) $invitation->institution_id !== (int) $institution->id
+            || ! $actor->mfa_enabled_at
+            || ! $access->canViewInstitution($actor, $institution)
+            || ! $actor->roleAssignments()->where('institution_id', $institution->id)
+                ->whereNull('campus_id')
+                ->whereHas('role', fn ($q) => $q->whereIn('code', ['director', 'administrator']))
+                ->exists()) {
+            throw new AuthorizationException('Not permitted to revoke this invitation.');
+        }
+
+        DB::transaction(function () use ($actor, $institution, $invitation): void {
+            $locked = InstitutionInvitation::query()->lockForUpdate()->findOrFail($invitation->id);
+            if ($locked->accepted_at) {
+                throw ValidationException::withMessages(['invitation' => 'Accepted invitations cannot be revoked as pending invites.']);
+            }
+            if ($locked->revoked_at) {
+                return;
+            }
+            $locked->forceFill(['revoked_at' => now()])->save();
+            app(SecurityAudit::class)->record('invitation.revoked', $actor, null, $institution, [
+                'invitation_id' => $locked->id, 'role' => $locked->role->code, 'campus_id' => $locked->campus_id,
+            ]);
         });
     }
 }
