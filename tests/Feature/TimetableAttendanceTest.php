@@ -334,4 +334,26 @@ final class TimetableAttendanceTest extends TestCase
         $this->assertDatabaseCount('class_timetable_slots', 1);
     }
 
+
+    public function test_institution_timezone_controls_date_boundary_for_attendance(): void
+    {
+        // 20:30 UTC is 03:30 the following day in Asia/Phnom_Penh.
+        $this->travelTo(Carbon::parse('2027-06-12 20:30:00', 'UTC'));
+        $school = $this->school();
+        $this->assertSame('Asia/Phnom_Penh', $school->fresh()->timezone);
+        $campus = $this->campus($school);
+        $officer = $this->account($school, 'director');
+        $teacher = $this->account($school, 'teacher', $campus);
+        $class = $this->class($campus, $officer, $teacher);
+
+        $this->actingAs($teacher)->post(route('attendance.store', [$school, $class]), [
+            'session_date' => '2027-06-13',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('class_attendance_sessions', [
+            'class_section_id' => $class->id,
+            'session_date' => '2027-06-13',
+        ]);
+    }
+
 }
