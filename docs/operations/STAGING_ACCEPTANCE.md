@@ -33,6 +33,11 @@ Separate authorized staging installation acceptance must verify:
 - Assessment scoring (including zero and decimal points), max-score validation,
   independent publication and lock-after-publication.
 - Student/guardian visibility denial before publication and after guardian revocation.
+- Controlled corrections: teacher requests a change on finalized data; separate
+  MFA-enabled officer reviews; rejection preserves source; approved change
+  updates source while preserving original value, reason and reviewers.
+- Verify no officer can self-approve and no other class or institution can
+  resolve a correction request; check privacy after guardian revocation.
 - Storage permissions, HTTPS, Nginx/PHP-FPM, backup/restore and audit evidence.
 
 The independent operator must record hostname, source SHA, vhost fingerprint,

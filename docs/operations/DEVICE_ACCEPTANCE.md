@@ -42,3 +42,12 @@ Further academic module physical-device acceptance scenarios:
 - Student/guardian never sees classmates' attendance or score records
 - Revoked parent permissions immediately deny previously published scores
 - School timezone date boundary and time selector usability are manually checked
+
+
+Correction review scenarios:
+- Assigned teacher requests a corrected attendance mark after officer approval
+- Officer sees the pending change and before/after snapshot and may approve or reject
+- Student/guardian does not see pending corrections, only current approved value
+- Assigned teacher requests a published score correction within the marking maximum
+- Other staff/campus, suspended accounts and self-approval cannot change results
+- On iPhone/Android, form labels, validation errors and independent decision actions are usable

@@ -39,7 +39,9 @@ through email notifications.
 ### Outstanding
 
 Approved attendance is intentionally immutable via the application API.
-There is no controlled correction, withdrawal, historical backdating policy,
+Controlled teacher-requested changes with separate officer approval and private
+before/after snapshots are implemented. There is no full correction appeal,
+withdrawal, historical backdating policy,
 teacher replacement, absence excuse evidence, attendance appeal, signed
 attendance report or verified attendance export yet. Test these processes
 independently before production.
@@ -63,7 +65,9 @@ transcripts, graduation grades or verified report cards**.
 
 ### Outstanding
 
-Approved score correction, marking schemes, weighted categories, rubric
+A teacher-requested score correction with two-person approval and retained
+before/after snapshots is implemented. Full appeal, student notification,
+marking schemes, weighted categories, rubric
 support, ungraded/absent students, reassessment, moderation, student appeals,
 full transcripts, parental acknowledgment, import/export, retention rules,
 and real institutional academic-policy review remain required.

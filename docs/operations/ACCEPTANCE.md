@@ -14,6 +14,8 @@ Implemented source code:
 - [x] Timezone-aware class timetable; room/teacher overlap checks on initial creation.
 - [x] Teacher-only attendance drafts, independent approval, family-specific published reads.
 - [x] Assessment drafts and decimal scoring, independent publication, family-specific published results.
+- [x] Controlled attendance and grade correction requests, independent decision,
+      original/new value snapshots, reason codes and scoped audit events.
 
 Outstanding independent acceptance:
 - [ ] Current head CI all green for PHP 8.3/8.4/8.5, MySQL 8, frontend.
@@ -24,7 +26,9 @@ Outstanding independent acceptance:
 - [ ] Physical iPhone/Android/tablet and Safari/Chrome/Firefox testing.
 - [ ] Verify real guardian authority, custody restrictions, retention and revocation processes.
 - [ ] Independent campus cross-boundary and classroom roster read-denial review.
-- [ ] Physical school attendance and score-review workflows, exception and correction handling.
+- [ ] Physical school attendance and score-review workflows and exception/appeal handling.
+- [ ] Independent authorization/retention and correction-history privacy review.
+- [ ] Real-world notification, custody and grievance handling for corrected records.
 - [ ] Conflicting teacher reassignment, concurrent timetable inserts, and institutional timezone review.
 - [ ] School retention and privacy review for attendance, assessment scoring and audit metadata.
 - [ ] School privacy and regional legal review.
