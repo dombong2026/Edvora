@@ -32,12 +32,44 @@ final class InstitutionAnnouncementController extends Controller
                 });
         }
 
+        $announcements = $query->orderByDesc('id')->paginate(10);
+        $readIds = DB::table('announcement_read_receipts')
+            ->where('institution_id', $institution->id)
+            ->where('user_id', $request->user()->id)
+            ->whereIn('announcement_id', $announcements->getCollection()->pluck('id')->all())
+            ->pluck('announcement_id')->all();
+
         return view('dashboard.announcements.index', [
+            'readIds' => $readIds,
             'institution' => $institution,
             'canManage' => $canManage,
             'campuses' => $canManage ? $access->campuses($request->user(), $institution) : collect(),
-            'announcements' => $query->orderByDesc('id')->paginate(10),
+            'announcements' => $announcements,
         ]);
+    }
+
+    public function markRead(
+        Request $request,
+        Institution $institution,
+        int $announcement,
+        InstitutionEngagement $access
+    ): RedirectResponse {
+        Gate::authorize('view', $institution);
+        $record = DB::table('institution_announcements')
+            ->where('institution_id', $institution->id)->find($announcement);
+        abort_unless($record, 404);
+        // A read receipt is never created for drafts or archived/unassigned notices.
+        abort_unless($record->status === 'published' && $record->published_at !== null
+            && $access->canReadAnnouncement($request->user(), $institution, $record), 403);
+
+        DB::table('announcement_read_receipts')->updateOrInsert([
+            'institution_id' => $institution->id,
+            'announcement_id' => $record->id,
+            'user_id' => $request->user()->id,
+        ], ['read_at' => now()]);
+
+        return redirect()->route('announcements.index', $institution)
+            ->with('status', 'Announcement marked as read.');
     }
 
     public function store(

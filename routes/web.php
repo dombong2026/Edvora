@@ -180,6 +180,8 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('ticket')->middleware('throttle:15,1')->name('helpdesk.status');
     Route::get('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'index'])
         ->name('announcements.index');
+    Route::post('/dashboard/institutions/{institution:slug}/announcements/{announcement}/read', [InstitutionAnnouncementController::class, 'markRead'])
+        ->whereNumber('announcement')->middleware('throttle:30,1')->name('announcements.read');
     Route::post('/dashboard/institutions/{institution:slug}/announcements', [InstitutionAnnouncementController::class, 'store'])
         ->middleware('throttle:10,1')->name('announcements.store');
     Route::get('/dashboard/institutions/{institution:slug}/announcements/{announcement}', [InstitutionAnnouncementController::class, 'show'])

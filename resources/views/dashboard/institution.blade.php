@@ -82,6 +82,12 @@
             @endif
         @endif
         <a href="{{ route('mfa.setup') }}" class="edvora-list-link"><span>Account security</span><span aria-hidden="true">→</span></a>
+        @if($canAccessStaffLeave)
+            <a href="{{ route('staff.leave.index', $institution) }}" class="edvora-list-link"><span>Staff leave requests</span><span aria-hidden="true">→</span></a>
+        @endif
+        @if($canManagePayrollPlanning)
+            <a href="{{ route('staff.payroll.index', $institution) }}" class="edvora-list-link"><span>Payroll planning (restricted)</span><span aria-hidden="true">→</span></a>
+        @endif
         <a href="{{ route('announcements.index', $institution) }}" class="edvora-list-link"><span>School announcements</span><span aria-hidden="true">→</span></a>
         <a href="{{ route('helpdesk.index', $institution) }}" class="edvora-list-link"><span>Support requests · {{ $myOpenTickets }} open</span><span aria-hidden="true">→</span></a>
     </div>

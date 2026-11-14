@@ -101,6 +101,8 @@
             $navMembers = $navInstitution && app(\App\Services\RoleAssignmentService::class)->canManage(auth()->user(), $navInstitution);
             $navReports = $navInstitution && app(\App\Services\AcademicCatalogService::class)->canManage(auth()->user(), $navInstitution);
             $navOperationalModules = $navInstitution ? app(\App\Services\OperationalAccess::class)->modules(auth()->user(), $navInstitution) : [];
+            $navStaff = $navInstitution && app(\App\Services\StaffWorkflows::class)->eligibleCampuses(auth()->user(), $navInstitution)->isNotEmpty();
+            $navPayroll = $navInstitution && app(\App\Services\StaffWorkflows::class)->canReview(auth()->user(), $navInstitution);
         @endphp
         <button type="button" data-sidebar-overlay class="edvora-sidebar-overlay" aria-label="Close navigation" tabindex="-1"></button>
     @endauth
@@ -153,6 +155,19 @@
                             <a href="{{ route('reports.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('reports.*') ? 'is-active' : '' }}">
                                 <span class="edvora-nav-glyph"><x-nav-icon name="reports" /></span><span>Academic reports</span>
                             </a>
+                        @endif
+                        @if($navStaff || $navPayroll)
+                            <p class="edvora-nav-heading pt-5">Staff administration</p>
+                            @if($navStaff || $navPayroll)
+                            <a href="{{ route('staff.leave.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('staff.leave.*') ? 'is-active' : '' }}">
+                                <span class="edvora-nav-glyph"><x-nav-icon name="leave" /></span><span>Leave requests</span>
+                            </a>
+                            @endif
+                            @if($navPayroll)
+                            <a href="{{ route('staff.payroll.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('staff.payroll.*') ? 'is-active' : '' }}">
+                                <span class="edvora-nav-glyph"><x-nav-icon name="payroll" /></span><span>Payroll planning</span>
+                            </a>
+                            @endif
                         @endif
                         <p class="edvora-nav-heading pt-5">Communication</p>
                         <a href="{{ route('announcements.index', $navInstitution) }}" class="edvora-nav-link {{ request()->routeIs('announcements.*') ? 'is-active' : '' }}">

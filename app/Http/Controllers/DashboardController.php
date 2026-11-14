@@ -147,6 +147,11 @@ class DashboardController extends Controller
             'latestNotices' => $feed,
             'myOpenTickets' => $myOpenTickets,
             'availableModules' => $availableModules,
+            'canAccessStaffLeave' => app(\App\Services\StaffWorkflows::class)
+                ->eligibleCampuses($request->user(), $institution)->isNotEmpty()
+                || app(\App\Services\StaffWorkflows::class)->canReview($request->user(), $institution),
+            'canManagePayrollPlanning' => app(\App\Services\StaffWorkflows::class)
+                ->canReview($request->user(), $institution),
             'visibleClassCount' => $visibleClasses->count(),
             'visibleStudentCount' => $visibleStudents->count(),
             'canManageAcademics' => app(AcademicCatalogService::class)->canManage($request->user(), $institution),

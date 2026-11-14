@@ -46,6 +46,12 @@
     @case('reports')
         <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17v-4M12 17V8M17 17v-6"/>
         @break
+    @case('leave')
+        <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 2v6M16 2v6M3 10h18m-13 5 2 2 5-5"/>
+        @break
+    @case('payroll')
+        <path d="M4 3h16v18l-4-2-4 2-4-2-4 2V3Z"/><path d="M8 8h8M8 12h8M8 16h5"/>
+        @break
     @case('announcements')
         <rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 10h8M8 14h5M8 18h8M8 3h8"/>
         @break

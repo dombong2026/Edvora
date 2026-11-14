@@ -48,7 +48,18 @@
             </div>
             <h2 class="mt-4 text-lg font-bold">{{ $announcement->title }}</h2>
             <p class="mt-2 line-clamp-3 whitespace-pre-wrap break-words text-sm leading-7 text-slate-600 dark:text-slate-300">{{ $announcement->body }}</p>
-            <a class="mt-4 inline-flex text-sm font-bold text-blue-600 hover:underline dark:text-blue-400" href="{{ route('announcements.show', [$institution, $announcement->id]) }}">Read announcement →</a>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <a class="inline-flex text-sm font-bold text-blue-600 hover:underline dark:text-blue-400" href="{{ route('announcements.show', [$institution, $announcement->id]) }}">Read announcement →</a>
+                @if($announcement->status === 'published')
+                    @if(in_array($announcement->id, $readIds, true))
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Read</span>
+                    @else
+                        <form method="POST" action="{{ route('announcements.read', [$institution, $announcement->id]) }}">
+                            @csrf<button type="submit" class="edvora-secondary">Mark as read</button>
+                        </form>
+                    @endif
+                @endif
+            </div>
         </article>
     @empty
         <div class="edvora-surface p-8 text-sm text-slate-500 dark:text-slate-400">No announcements are available to this account.</div>
