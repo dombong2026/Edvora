@@ -10,11 +10,12 @@
 |---|---|---|
 | Student lifecycle | Create and review promotions, withdrawals, and restricted campus transfers; automatic applied_at records; approved withdrawal deactivates enrolled classes; promotion inserts a real target enrollment under capacity lock | MFA officers, independent director/admin review, campus/tenant-scope FKs, no moving linked account/guardian/enrollment/invoice records |
 | Academic results preview | Show and CSV-export only independently published assessment results for a verified student's own record | Authorized student/guardian or academic leadership only, no classmate information, CSV formula-injection prefix |
+| School-reviewed result statements | Verified student/guardian/officer requests a year statement, independent director/admin issues or rejects, separate officer may revoke, immutable JSON snapshot with SHA-256 and CSV download | Authorization checked on every view/export, only published grades at issuance, no public lookup and no legally certified transcript claim |
 | Exam timetable | Teacher or academic officer creates draft, submits, independent school officer publishes or rejects; room/time conflicts checked before publication | Scoped class, active campus/year, institution lock for conflicts, published-only visibility to student/parent |
 | Staff leave | Staff request future date range, independent leadership review or rejection, personal pending cancellation, overlap check | Staff campus assignment, private own/requester or director/admin view, MFA reviewer, school-scoped |
 | Payroll planning | One staff + period draft, precise USD cents / KHR riel net amount, independent approve/void | Director/admin MFA only, staff membership/campus checks, no disbursement/filing/payslip |
 | Internal billing | Draft from reviewed fee proposal and verified same-campus student; independent issue/void; manual reference claim reviewed by another officer | Cashier+MFA, leader review, exact integer minor money, duplicate reference/overmatch protection; **no payment processing or bank confirmation** |
-| Internal notifications | Published school notices surfaced through authorized school feed, personal read/unread marker | POST authorization only, no viewing draft or cross-campus notices, no email/SMS/push |
+| Internal notifications | Published notices plus private in-app inbox for statement issuance/revocation and staff leave decisions, personal read/archive actions | Tenant + recipient scoped, event deduplication, checked record destinations, no email/SMS/push delivery |
 | Shared UI | Consistent navigation, responsive light/dark, real forms, status transitions, audit events | No fake buttons, permission-checked server routes |
 
 ## Important limitations still outstanding
