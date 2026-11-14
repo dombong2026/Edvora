@@ -50,3 +50,14 @@ Admissions, students, guardians, academics, timetable, attendance,
 assessments, fees, payroll, library, transport, facilities, welfare,
 communication, documents, CMS, reporting and integrations are NOT included in
 the foundation. Each future module requires its own acceptance tests.
+
+
+## Initial academic planning slice
+
+AcademicYear and AcademicSubject are scoped to institution_id with unique
+institution-level codes, auditable creator IDs and server-side validation.
+Academic years are draft-only on creation; no publishing workflow exists yet.
+Only authenticated institution leadership with MFA may create records.
+All authenticated institution members can view the limited catalog, but
+cross-institution reads are denied. Course sections, teacher assignments,
+student enrollment, grading, reports and scheduling are future milestones.

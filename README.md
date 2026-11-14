@@ -15,11 +15,11 @@ PHP 8.3+ with Laravel-required extensions, MySQL 8, Composer 2, Node.js 22+, npm
 
 ## Local / disposable QA setup only
 
-1. Install dependencies with composer install, or use composer install to respect the committed dependency lockfile.
+1. Install exact PHP dependencies using composer install; do not update dependencies implicitly.
 2. Copy .env.example to .env; configure a **disposable** local MySQL database and never commit .env.
 3. Run php artisan key:generate.
 4. Run php artisan migrate and php artisan db:seed --class=RoleSeeder.
-5. Run npm install --ignore-scripts, then npm run build.
+5. Run npm ci --ignore-scripts, then npm run build.
 6. Run php artisan serve for local evaluation.
 7. On a **fresh, empty** installation only, run php artisan edvora:bootstrap interactively to create the initial institution and privileged administrator.
 
@@ -32,6 +32,8 @@ Do not execute installation commands against production school records without a
 - Separate platform administrator designation, institution memberships and role assignments.
 - Institution/campus boundaries, composite foreign keys, policies, audited privileged grants, and a secure role-assignment service.
 - Secure email-bound institution invitations with one-time acceptance, revocation and audit events.
+- Institution-scoped academic years and subject catalog with leadership-only creation and validation.
+- Guarded aaPanel staging preflight, HTTPS checks and AGE-encrypted QA backup/restore rehearsal scripts.
 - Responsive premium dashboard, with persistent light, dark and system appearance.
 - Empty states and real authorized dashboard data; no fake records.
 

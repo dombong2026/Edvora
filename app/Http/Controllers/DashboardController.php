@@ -69,22 +69,26 @@ class DashboardController extends Controller
         $campuses = $institution->campuses()->where('status', 'active')->orderBy('name')->get()
             ->filter(fn (Campus $campus): bool => $access->canViewCampus($request->user(), $campus));
 
+        $canInvite = $request->user()->roleAssignments()
+            ->where('institution_id', $institution->id)
+            ->whereNull('campus_id')
+            ->whereHas('role', fn ($q) => $q->whereIn('code', ['administrator', 'director']))
+            ->exists();
+
         return view('dashboard.institution', [
             'institution' => $institution,
             'campuses' => $campuses,
             'selectedCampus' => $selectedCampus,
             'selectedRole' => $selectedRole,
             'roleCodes' => $access->roleCodes($request->user(), $institution),
-            'canInvite' => $request->user()->roleAssignments()
-                ->where('institution_id', $institution->id)
-                ->whereNull('campus_id')
-                ->whereHas('role', fn ($q) => $q->whereIn('code', ['administrator', 'director']))
-                ->exists(),
+            'canInvite' => $canInvite,
             'inviteRoles' => array_filter(AccountRole::cases(), fn (AccountRole $role) => $role !== AccountRole::Admin),
-            'pendingInvitations' => InstitutionInvitation::query()->where('institution_id', $institution->id)
-                ->whereNull('accepted_at')->whereNull('revoked_at')
-                ->where('expires_at', '>', now())
-                ->latest()->limit(10)->get(),
+            'pendingInvitations' => $canInvite
+                ? InstitutionInvitation::query()->where('institution_id', $institution->id)
+                    ->whereNull('accepted_at')->whereNull('revoked_at')
+                    ->where('expires_at', '>', now())
+                    ->latest()->limit(10)->get()
+                : collect(),
             'memberCount' => InstitutionMembership::query()
                 ->where('institution_id', $institution->id)
                 ->where('status', 'active')
